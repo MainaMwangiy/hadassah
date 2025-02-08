@@ -2,31 +2,15 @@ import React, { useState } from "react";
 import { FieldConfig } from "../../config/products/types";
 import { useField } from "formik";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
-import { Autocomplete, TextField } from "@mui/material";
-
-interface FormFieldProps {
-  fieldConfig: FieldConfig;
-}
+import Autocomplete from "../../hooks/Autocomplete";
 
 const FormField: React.FC<any> = ({ fieldConfig }) => {
   const [field, meta, helpers] = useField(fieldConfig.name);
   const [showPassword, setShowPassword] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [inputValue, setInputValue] = useState('');
-  const [options, setOptions] = useState<any[]>(fieldConfig.options || []);
-
-  const handleInputChange = (event: React.ChangeEvent<{}>, newInputValue: string) => {
-    setInputValue(newInputValue);
-    if (fieldConfig.options) {
-      const filteredOptions = fieldConfig.options.filter((option: any) =>
-        option.label.toLowerCase().includes(newInputValue.toLowerCase())
-      );
-      setOptions(filteredOptions);
-    } else {
-      setOptions([]);
-    }
+  const handleAutocompleteChange = (event: React.SyntheticEvent, newValue: any | null) => {
+    helpers.setValue(newValue ? newValue.value : '');
   };
-
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files ? event.target.files[0] : null;
     if (!file) return;
@@ -139,36 +123,10 @@ const FormField: React.FC<any> = ({ fieldConfig }) => {
         return (
           <div className="relative">
             <Autocomplete
-              {...field}
-              freeSolo
-              options={options}
-              getOptionLabel={(option) => option.label || ""}
-              inputValue={inputValue}
-              onInputChange={handleInputChange}
-              noOptionsText="No data available"
-              onChange={(event, newValue: any) => {
-                helpers.setValue(newValue ? newValue?.value : "");
-              }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label={fieldConfig.label}
-                  variant="standard"
-                  error={meta.touched && Boolean(meta.error)}
-                  helperText={meta.touched && meta.error}
-                  fullWidth
-                  InputProps={{
-                    ...params.InputProps,
-                    className:
-                      "bg-white dark:bg-gray-800 dark:text-white",
-                  }}
-                  InputLabelProps={{
-                    ...params.InputLabelProps,
-                    className: "text-gray-900 dark:text-white",
-                  }}
-                  className="!border !border-gray-300 dark:!border-white"
-                />
-              )}
+              label={fieldConfig.label}
+              value={field.value || ''}
+              onChange={handleAutocompleteChange}
+              options={fieldConfig.options || []}
             />
           </div>
         );
