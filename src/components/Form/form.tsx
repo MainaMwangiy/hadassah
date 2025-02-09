@@ -23,6 +23,11 @@ interface ProductOption {
   name: string;
 }
 
+type CustomPayload = {
+  productid?: number;
+  name?: string;
+  [key: string]: any;
+};
 const Form: React.FC<GenericFormProps & { mode: Mode, [key: string]: any }> = ({ config, onClose, isOpen, initialValues = {}, mode, ...rest }) => {
   const isUpdate = mode === 'edit';
   const limitCreate = config?.limit && !isUpdate;
@@ -76,6 +81,7 @@ const Form: React.FC<GenericFormProps & { mode: Mode, [key: string]: any }> = ({
     ),
     enableReinitialize: true,
     onSubmit: async (values) => {
+      const staticValues = { ...values };
       let localData: Record<string, ProductOption[]> = {};
       config.fields.forEach(field => {
         if (field.listType) {
@@ -84,22 +90,21 @@ const Form: React.FC<GenericFormProps & { mode: Mode, [key: string]: any }> = ({
           localData[field.listType] = JSON.parse(tempData || '[]');
         }
       });
-
-      const staticValues = { ...values };
-      const id = staticValues[`${config.keyField.toLowerCase()}id`];
+      const customPayload: CustomPayload = {};
+      if (config.customSale) {
+        const productInfo = localData.product?.find(
+          (item: ProductOption) => item.productid === parseInt(isUpdate ? staticValues.productid : staticValues.name)
+        );
+        if (productInfo) {
+          customPayload.productid = productInfo.productid;
+          customPayload.name = productInfo.name;
+        }
+      }
+      const lookupKey = `${config.customKey?.toLowerCase() || config.keyField.toLowerCase()}id`;
+      const id = customPayload[lookupKey];
       const endpoint = mode === 'edit' ? config.apiEndpoints.update : config.apiEndpoints.create;
       const url = mode === 'edit' && id ? `${endpoint.url}/${id}` : endpoint.url;
       const defaultPayload = endpoint.payload || {};
-
-      const customPayload: { productid?: number; name?: string } = {};
-      if (config.customSale) {
-        const productInfo = localData.product?.find(
-          (item: ProductOption) => item.productid === staticValues.name
-        );
-        customPayload.productid = productInfo ? productInfo.productid : undefined;
-        customPayload.name = productInfo ? productInfo.name : '';
-      }
-
       const requestData = { ...defaultPayload, ...staticValues, ...customPayload };
       await apiRequest({ method: "POST", url, data: requestData });
       setSubmissionState(true);

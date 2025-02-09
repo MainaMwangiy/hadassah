@@ -15,6 +15,7 @@ export const salesConfig: ModuleConfig = {
   addSearch: true,
   hideActionMenu: false,
   customSale: true,
+  customKey: 'product',
   apiEndpoints: {
     list: {
       url: `${utils.baseUrl}/api/sales/list`

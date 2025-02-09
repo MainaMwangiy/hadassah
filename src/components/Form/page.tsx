@@ -28,10 +28,12 @@ const ModulePage: React.FC<ModulePageProps> = ({ config, showAddNew = false, sho
   const [loading, setLoading] = useState(false);
   const clientorganizationid = localStorage.getItem('clientorganizationid') || "";
   const [refreshCount, setRefreshCount] = useState(0);
+  const [mode, setMode] = useState<'add' | 'edit'>('add');
 
   const handleEdit = (item: any) => {
     setSelectedItem(item);
     setIsFormOpen(true);
+    setMode('edit');
   };
 
   const handleClose = () => {
@@ -65,7 +67,7 @@ const ModulePage: React.FC<ModulePageProps> = ({ config, showAddNew = false, sho
       const reqParams = { isExport: true, clientorganizationid: clientorganizationid };
       const tempPayload = { ...payload, ...additionalParams, ...reqParams };
       const response = await apiRequest({ method: "POST", url: url, data: tempPayload, responseType: 'blob', filename: config?.title });
-      if(!response) {
+      if (!response) {
         enqueueSnackbar("Failed to export expenses. Please try again.", { variant: "error" });
         setLoading(false);
         return;
@@ -86,7 +88,6 @@ const ModulePage: React.FC<ModulePageProps> = ({ config, showAddNew = false, sho
     }
   };
 
-  const mode = selectedItem ? "edit" : "add";
   return (
     <div>
       <div className="flex flex-row items-center w-full space-x-2 mb-4">

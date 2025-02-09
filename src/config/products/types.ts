@@ -52,6 +52,7 @@ export interface ModuleConfig {
   updateLocal?: boolean;
   limit?: boolean;
   customSale?: boolean;
+  customKey?: string;
 }
 
 export interface DataItem {
