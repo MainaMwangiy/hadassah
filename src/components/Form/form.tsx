@@ -64,30 +64,6 @@ const Form: React.FC<GenericFormProps & { mode: Mode, [key: string]: any }> = ({
     }, {})
   );
 
-  // const [localData, setLocalData] = useState<any>({});
-
-  // useEffect(() => {
-  //   if (isOpen) {
-  //     const allData = {};
-  //     config.fields.forEach(field => {
-  //       if (field.listType) {
-  //         const listCombo = `${field.listType}s`;
-  //         const tempData = localStorage.getItem(listCombo);
-  //         localData[field.listType] = JSON.parse(tempData || '[]');
-  //       }
-  //     });
-  //     setLocalData(allData);
-  //   } else {
-  //     setLocalData({}); // Clear localData when the form is not open
-  //   }
-  // }, [isOpen, config.fields]);
-
-  // // Use useEffect to log the current state of localData to debug
-  // useEffect(() => {
-  //   console.log("Local Data updated: ", localData);
-  // }, [localData]);
-
-
   const formik = useFormik({
     initialValues: initialValues,
     validationSchema: Yup.object(
@@ -188,6 +164,18 @@ const Form: React.FC<GenericFormProps & { mode: Mode, [key: string]: any }> = ({
     });
     setFieldsToShow(updatedFields);
   }, [isOpen]);
+  useEffect(() => {
+    const calculateTotalPrice = () => {
+      const quantity = formik.values.quantity;
+      const sellingPrice = formik.values.sellingprice;
+      if (quantity && sellingPrice) {
+        const total = Number(quantity) * Number(sellingPrice);
+        formik.setFieldValue('totalprice', total.toFixed(2));
+      }
+    };
+
+    calculateTotalPrice();
+  }, [formik.values.quantity, formik.values.sellingprice, formik.setFieldValue]);
 
   const formContent = (
     <FormikProvider value={formik}>
