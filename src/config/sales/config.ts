@@ -14,6 +14,7 @@ export const salesConfig: ModuleConfig = {
   showTitle: true,
   addSearch: true,
   hideActionMenu: false,
+  customSale: true,
   apiEndpoints: {
     list: {
       url: `${utils.baseUrl}/api/sales/list`
@@ -43,12 +44,12 @@ export const salesConfig: ModuleConfig = {
     }
   },
   fields: [
-    { name: "name", type: "autocomplete", label: "Product Names", required: true, width: "150px", listType: "product" },
+    { name: "name", type: "autocomplete", label: "Product", required: true, width: "150px", listType: "product" },
     { name: "quantity", type: "number", label: "Quantity", required: true, width: "100px" },
     { name: "sellingprice", type: "number", label: "Selling Price", required: true, width: "100px" },
-    { name: "profit", type: "number", label: "Profit", required: true, width: "100px" },
-    { name: "createdon", type: "date", label: "Created On", form: false, width: "150px" },
-    { name: "modifiedon", type: "date", label: "Modified On", form: false, width: "150px" }
-  ],
-
+    { name: "totalprice", type: "number", label: "Total Price", required: true, width: "100px" },
+    { name: "profit", type: "number", label: "Profit", form: false, width: "100px" },
+    { name: "createdon", type: "date", label: "Sale Date", form: false, width: "150px" },
+    { name: "modifiedon", type: "date", label: "Last Modified", form: false, width: "150px" }
+  ]
 };

@@ -45,13 +45,11 @@ export const productsConfig: ModuleConfig = {
   },
   fields: [
     { name: "name", type: "text", label: "Name", required: true, width: "150px" },
-    { name: "price", type: "number", label: "Buying Cost", required: true, width: "120px" }, 
-    { name: "images", type: "file", label: "Images", required: false, width: "200px" },
+    { name: "price", type: "number", label: "Cost Price", required: true, width: "120px" },
     { name: "description", type: "textarea", label: "Description", required: false, width: "300px" },
     { name: "size", type: "text", label: "Size", required: false, width: "100px" },
-    { name: "createdon", type: "date", label: "Added On", required: false, width: "150px" }, 
-    { name: "modifiedon", type: "date", label: "Modified On", required: false, width: "150px" },
-    { name: "quantity", type: "number", label: "Quantity", required: true, width: "100px" },
-  ],
-  
+    { name: "quantity", type: "number", label: "Stock Quantity", required: true, width: "150px" },
+    { name: "createdon", type: "date", label: "Added On", form: false, width: "150px" },
+    { name: "modifiedon", type: "date", label: "Modified On", form: false, width: "150px" }
+  ]
 };

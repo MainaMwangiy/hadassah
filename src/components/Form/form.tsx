@@ -19,7 +19,7 @@ interface GenericFormProps {
 }
 type Mode = 'edit' | 'add' | null;
 interface ProductOption {
-  id: number;
+  productid: number;
   name: string;
 }
 
@@ -54,7 +54,7 @@ const Form: React.FC<GenericFormProps & { mode: Mode, [key: string]: any }> = ({
       enqueueSnackbar("Failed to parse clientorganizations:", { variant: "error" });
     }
   }
-
+  const updateLocal = config?.updateLocal;
   const validationSchema = Yup.object(
     fieldsToShow.reduce<Record<string, any>>((schema, field) => {
       if (field.required) {
@@ -63,45 +63,71 @@ const Form: React.FC<GenericFormProps & { mode: Mode, [key: string]: any }> = ({
       return schema;
     }, {})
   );
+
+  // const [localData, setLocalData] = useState<any>({});
+
+  // useEffect(() => {
+  //   if (isOpen) {
+  //     const allData = {};
+  //     config.fields.forEach(field => {
+  //       if (field.listType) {
+  //         const listCombo = `${field.listType}s`;
+  //         const tempData = localStorage.getItem(listCombo);
+  //         localData[field.listType] = JSON.parse(tempData || '[]');
+  //       }
+  //     });
+  //     setLocalData(allData);
+  //   } else {
+  //     setLocalData({}); // Clear localData when the form is not open
+  //   }
+  // }, [isOpen, config.fields]);
+
+  // // Use useEffect to log the current state of localData to debug
+  // useEffect(() => {
+  //   console.log("Local Data updated: ", localData);
+  // }, [localData]);
+
+
   const formik = useFormik({
-    initialValues: defaultInitialValues,
-    validationSchema,
+    initialValues: initialValues,
+    validationSchema: Yup.object(
+      config.fields.reduce<Record<string, Yup.AnySchema>>((schema, field) => {
+        if (field.required) {
+          schema[field.name] = Yup.string().required(`${field.label} is required`);
+        }
+        return schema;
+      }, {})
+    ),
     enableReinitialize: true,
     onSubmit: async (values) => {
-      const staticValues = { ...values };
+      let localData: Record<string, ProductOption[]> = {};
       config.fields.forEach(field => {
-        if (field?.passKeyField && values[field.name]) {
-          staticValues[field.name] = utils.getRolesId(values[field.name]);
+        if (field.listType) {
+          const listCombo = `${field.listType}s`;
+          const tempData = localStorage.getItem(listCombo);
+          localData[field.listType] = JSON.parse(tempData || '[]');
         }
       });
-      const id = staticValues[`${keyField.toLowerCase()}id`];
-      const endpoint = isUpdate ? config.apiEndpoints.update : config.apiEndpoints.create;
-      const url = isUpdate && id ? `${endpoint.url}/${id}` : endpoint.url;
+
+      const staticValues = { ...values };
+      const id = staticValues[`${config.keyField.toLowerCase()}id`];
+      const endpoint = mode === 'edit' ? config.apiEndpoints.update : config.apiEndpoints.create;
+      const url = mode === 'edit' && id ? `${endpoint.url}/${id}` : endpoint.url;
       const defaultPayload = endpoint.payload || {};
-      let getOrganization;
-      for (const item of allOrganizations) {
-        const keyFieldLower = keyField.toLowerCase();
-        const dynamicKeyId = `${keyFieldLower}id`;
-        if (!isUpdate) {
-          getOrganization = item;
-          break;
-        }
-        if (item[dynamicKeyId] === staticValues[dynamicKeyId]) {
-          getOrganization = item;
-          break;
-        }
+
+      const customPayload: { productid?: number; name?: string } = {};
+      if (config.customSale) {
+        const productInfo = localData.product?.find(
+          (item: ProductOption) => item.productid === staticValues.name
+        );
+        customPayload.productid = productInfo ? productInfo.productid : undefined;
+        customPayload.name = productInfo ? productInfo.name : '';
       }
-      const skipMandatory = config?.skipKeyField;
-      const cnd = !skipMandatory || isUpdate;
-      const filterOrganizations = ((utils.isSuperAdmin && getOrganization?.clientorganizationid !== undefined)) ? getOrganization.clientorganizationid : clientorganizationid;
-      // const mandatoryParams = !isUpdate ? { clientorganizationid: filterOrganizations } : { clientorganizationid: clientorganizationid };
-      const isProject = keyField.toLowerCase() === "project";
-      const additionalParams = endpoint?.payload?.hideProject ? {} : { projectid: isProject ? id : rest?.id };
-      const requestData = { ...defaultPayload, ...staticValues, ...additionalParams };
+
+      const requestData = { ...defaultPayload, ...staticValues, ...customPayload };
       await apiRequest({ method: "POST", url, data: requestData });
       setSubmissionState(true);
       onClose();
-      rest.onDataUpdated();
     },
   });
 

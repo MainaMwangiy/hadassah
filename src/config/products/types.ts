@@ -51,6 +51,7 @@ export interface ModuleConfig {
   skipKeyField?: boolean;
   updateLocal?: boolean;
   limit?: boolean;
+  customSale?: boolean;
 }
 
 export interface DataItem {
