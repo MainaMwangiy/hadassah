@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 
 interface ChartComponentProps {
     type: 'line' | 'bar' | 'pie';
-    data: { name: string; amount: number; createdon: string; clientusername: string, amountsold?: number }[];
+    data: { name: string; amount: number; createdon: string; clientusername: string, amountsold?: number, sellingprice: number }[];
     title: string;
     yLabel: string;
     xLabel?: string;
@@ -14,7 +14,7 @@ interface ChartComponentProps {
 const ChartComponent: React.FC<ChartComponentProps> = ({ type, data, title, yLabel, xLabel }) => {
     let seriesData;
     if (type === 'pie') {
-        seriesData = data.reduce((acc: any[], item) => {
+        seriesData = data?.reduce((acc: any[], item) => {
             const foundIndex = acc.findIndex((d) => d.name === item.clientusername);
             if (foundIndex !== -1) {
                 acc[foundIndex].y += Number(item.amount);
@@ -27,9 +27,9 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ type, data, title, yLab
             return acc;
         }, []);
     } else {
-        seriesData = data.map((item) => ({
+        seriesData = data?.map((item) => ({
             name: item.name,
-            y: Number(item.amount || item.amountsold),
+            y: Number(item.sellingprice || item.amount || item.amountsold),
             category: dayjs(item.createdon).format('DD-MM-YYYY'),
         }));
 
