@@ -40,7 +40,7 @@ const AverageContract = () => {
   const theme = useTheme();
   return (
     <div style={cardStyle(theme)} className="w-full sm:w-1/4 p-4 text-center">
-      <p className="text-sm text-gray-400">Average Contract</p>
+      <p className="text-sm text-gray-400">Average Sales</p>
       <h2 className="text-5xl font-bold">KES 1,553</h2>
       <p className="text-sm text-green-500">+7.3%</p>
       <p className="text-xs text-gray-400">vs previous 7 days</p>
@@ -52,7 +52,7 @@ const GrowthRate = () => {
   const theme = useTheme();
   return (
     <div style={cardStyle(theme)} className="w-full sm:w-1/4 p-4 text-center">
-      <p className="text-sm text-gray-400">Growth Rate</p>
+      <p className="text-sm text-gray-400">Sales Growth Rate</p>
       <h2 className="text-5xl font-bold">8.29%</h2>
       <p className="text-sm text-green-500">+1.3%</p>
       <p className="text-xs text-gray-400">vs previous 7 days</p>
