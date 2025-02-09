@@ -1,25 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { FaBell, FaMoon, FaSun } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-// import { useDarkMode } from "../../hooks/DarkModeContext";
+import { useDarkMode } from "../../hooks/DarkModeContext";
 import ProfileDropdown from "../../hooks/ProfileDropdown";
 import { AiOutlineMenu } from "react-icons/ai";
 import { SidebarProps } from "../../types";
 
 const Header: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
   const navigate = useNavigate();
-  // const { toggleDarkMode, darkMode } = useDarkMode();
+  const { toggleDarkMode, darkMode } = useDarkMode();
 
-  // const [isDarkMode, setISDarkMode] = useState(darkMode);
+  const [isDarkMode, setISDarkMode] = useState(darkMode);
 
-  // useEffect(() => {
-  //   setISDarkMode(isDarkMode);
-  // }, [isDarkMode]);
+  useEffect(() => {
+    setISDarkMode(isDarkMode);
+  }, [isDarkMode]);
 
-  // const handleToggleDarkMode = () => {
-  //   toggleDarkMode();
-  //   setISDarkMode(!darkMode);
-  // };
+  const handleToggleDarkMode = () => {
+    toggleDarkMode();
+    setISDarkMode(!darkMode);
+  };
 
   return (
     <header className="w-full h-16 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-md flex justify-between items-center px-4 sm:px-6 lg:px-8 mt-2">
@@ -38,7 +38,7 @@ const Header: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
           className="text-gray-500 dark:text-gray-300 cursor-pointer"
           onClick={() => navigate("/notifications")}
         />
-        {/* {darkMode ? (
+        {darkMode ? (
           <FaSun
             className="text-gray-500 dark:text-gray-300 cursor-pointer"
             onClick={handleToggleDarkMode}
@@ -48,7 +48,7 @@ const Header: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
             className="text-gray-500 dark:text-gray-300 cursor-pointer"
             onClick={handleToggleDarkMode}
           />
-        )} */}
+        )}
         <ProfileDropdown />
       </div>
     </header>

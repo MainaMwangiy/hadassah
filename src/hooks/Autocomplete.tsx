@@ -1,6 +1,7 @@
 import React, { useState, FC } from 'react';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
+import { useDarkMode } from './DarkModeContext';
 
 interface OptionType {
     label: string;
@@ -20,6 +21,17 @@ const AutocompleteField: FC<AutocompleteFieldProps> = ({ label, value, onChange,
         setInputValue(newInputValue);
     };
     const filteredOptions = options.filter(option => option.label.toLowerCase().includes(inputValue.toLowerCase()));
+    const { darkMode } = useDarkMode();
+    const inputStyles = {
+        borderColor: darkMode ? '#555' : '#ccc',
+        color: darkMode ? 'white' : 'black',
+        caretColor: darkMode ? 'white' : 'black'
+    };
+
+    const labelStyles = {
+        color: darkMode ? 'white' : 'black'
+    };
+
     return (
         <Autocomplete
             options={filteredOptions}
@@ -36,20 +48,13 @@ const AutocompleteField: FC<AutocompleteFieldProps> = ({ label, value, onChange,
                     variant="outlined"
                     InputProps={{
                         ...params.InputProps,
-                        style: {
-                            borderColor: 'white',
-                            color: 'white',
-                            caretColor: 'white'
-                        }
+                        style: inputStyles
                     }}
                     InputLabelProps={{
                         ...params.InputLabelProps,
-                        style: { color: 'white' }
+                        style: labelStyles
                     }}
-                    style={{
-                        borderColor: 'white',
-                        color: 'white'
-                    }}
+                    style={inputStyles}
                 />
             )}
         />

@@ -1,9 +1,9 @@
 import React from "react";
-import { FaTachometerAlt, FaUsers} from "react-icons/fa";
+import { FaTachometerAlt, FaUsers } from "react-icons/fa";
 import { FcSalesPerformance } from "react-icons/fc";
 import { MdProductionQuantityLimits } from "react-icons/md";
 import { Link } from "react-router-dom";
-import logo from '../assets/logo.svg';
+import logo from '../assets/logo.jpg';
 import { SidebarProps } from "../../types";
 
 const Sidebar: React.FC<SidebarProps> = ({ isMobile, isOpen }) => {
@@ -31,7 +31,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobile, isOpen }) => {
           </li>
           <li className="mb-4">
             <Link to="/sales" className="flex items-center text-lg p-2 hover:bg-gray-100 dark:hover:bg-gray-800">
-              <FcSalesPerformance  className="mr-3" />
+              <FcSalesPerformance className="mr-3" />
               Sales
             </Link>
           </li>
