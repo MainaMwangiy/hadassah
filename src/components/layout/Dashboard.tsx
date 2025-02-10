@@ -97,7 +97,11 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const { enqueueSnackbar } = useSnackbar();
   const [dateRange, setDateRange] = useState("Last7Days");
-  const [filters, setFilters] = useState<{ startDate: string; endDate: string }>({ startDate: "", endDate: "" });
+  const [filters, setFilters] = useState<{ startDate: string; endDate: string }>({
+    startDate: new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0], 
+    endDate: new Date().toISOString().split('T')[0]
+  });
+  
 
   const handleDateRangeChange = (event: SelectChangeEvent<string>) => {
     const selectedRange = event.target.value;
