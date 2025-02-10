@@ -29,9 +29,9 @@ export const DarkModeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const newMode = !prevMode;
       localStorage.setItem('darkMode', JSON.stringify(newMode));
       if (newMode) {
-        document.documentElement.classList.add('dark');
+        document.documentElement.classList.add('light');
       } else {
-        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.remove('light');
       }
       return newMode;
     });
@@ -39,9 +39,9 @@ export const DarkModeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   useEffect(() => {
     if (darkMode) {
-      document.documentElement.classList.add('dark');
+      document.documentElement.classList.add('light');
     } else {
-      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.remove('light');
     }
   }, [darkMode]);
 
