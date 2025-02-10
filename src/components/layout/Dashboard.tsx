@@ -97,15 +97,48 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const { enqueueSnackbar } = useSnackbar();
   const [dateRange, setDateRange] = useState("Last7Days");
+  const [filters, setFilters] = useState<{ startDate: string; endDate: string }>({ startDate: "", endDate: "" });
 
   const handleDateRangeChange = (event: SelectChangeEvent<string>) => {
-    setDateRange(event.target.value);
+    const selectedRange = event.target.value;
+    setDateRange(selectedRange);
+    const { startDate, endDate } = calculateDateRange(selectedRange);
+    setFilters({ startDate, endDate });
+  };
+
+  const calculateDateRange = (range: string) => {
+    const currentDate = new Date();
+    let startDate = new Date();
+    let endDate = currentDate;
+
+    switch (range) {
+      case "Last7Days":
+        startDate.setDate(currentDate.getDate() - 7);
+        break;
+      case "Last14Days":
+        startDate.setDate(currentDate.getDate() - 14);
+        break;
+      case "Last30Days":
+        startDate.setDate(currentDate.getDate() - 30);
+        break;
+      case "Last90Days":
+        startDate.setDate(currentDate.getDate() - 90);
+        break;
+      default:
+        break;
+    }
+
+    return {
+      startDate: startDate.toISOString().split("T")[0],
+      endDate: endDate.toISOString().split("T")[0],
+    };
   };
 
   const fetchData = async () => {
     try {
       const url = `${utils.baseUrl}/api/sales/analytics`;
       const response = await axios.post(url, {
+        filters,
         headers: { 'Content-Type': 'application/json' },
       });
 
@@ -119,6 +152,7 @@ const Dashboard: React.FC = () => {
     try {
       const url = `${utils.baseUrl}/api/products/analytics`;
       const response = await axios.post(url, {
+        filters,
         headers: { 'Content-Type': 'application/json' },
       });
       setProductsData(response.data.data);
@@ -131,6 +165,7 @@ const Dashboard: React.FC = () => {
     try {
       const url = `${utils.baseUrl}/api/sales/total`;
       const response = await axios.post(url, {
+        filters,
         headers: { 'Content-Type': 'application/json' },
       });
       setTotalSales(response?.data?.data[0].total);
@@ -146,7 +181,7 @@ const Dashboard: React.FC = () => {
       setLoading(false);
     };
     fetchAllData();
-  }, []);
+  }, [filters]);
 
   if (loading) {
     return <div>Loading...</div>;
