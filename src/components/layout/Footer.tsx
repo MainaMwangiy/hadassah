@@ -14,7 +14,7 @@ const Footer: React.FC = () => {
           </ul>
         </div> */}
         <div className="text-center md:text-right">
-          <span>© {currentYear} Zao. All rights reserved.</span>
+          <span>© {currentYear} Hadassah Scents. All rights reserved.</span>
         </div>
       </div>
     </footer>

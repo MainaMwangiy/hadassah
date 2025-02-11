@@ -8,54 +8,52 @@ import utils from "../../utils";
 const cardStyle = (theme: any) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#2c2c2c" : "white",
   color: theme.palette.mode === "dark" ? "white" : "black",
-  boxShadow: theme.palette.mode === "dark" ? "0 4px 6px rgba(0, 0, 0, 0.2)" : "0 4px 6px rgba(0, 0, 0, 0.1)",
+  boxShadow: theme.palette.mode === "dark" ? "0 4px 6px rgba(255, 255, 255, 0.2)" : "0 4px 6px rgba(0, 0, 0, 0.1)",
   borderRadius: "8px",
+  padding: "20px",
+  margin: "10px",
 });
 
 const TotalSales = ({ total }: { total: number }) => {
-  const theme = useTheme();
   return (
-    <div style={cardStyle(theme)} className="w-full sm:w-1/4 p-4 text-center">
-      <p className="text-sm text-gray-400">Total Revenue</p>
-      <h2 className="text-5xl font-bold">{`KES ${new Intl.NumberFormat('en-KE').format(total)}`}</h2>
+    <div className="w-full sm:w-1/4 p-4 text-center bg-white dark:bg-gray-800 shadow-md dark:shadow-inner rounded-lg">
+      <p className="text-sm text-gray-400 dark:text-gray-500">Total Revenue</p>
+      <h2 className="text-5xl font-bold text-black dark:text-white">{`KES ${new Intl.NumberFormat('en-KE').format(total)}`}</h2>
       <p className="text-sm text-green-500">+20%</p>
-      <p className="text-xs text-gray-400">vs previous 7 days</p>
+      <p className="text-xs text-gray-400 dark:text-gray-500">vs previous 7 days</p>
     </div>
   );
 };
 
 const SalesPerPeriod = (salesData: any) => {
-  const theme = useTheme();
   return (
-    <div style={cardStyle(theme)} className="w-full sm:w-1/4 p-4 text-center">
-      <p className="text-sm text-gray-400">Total Sales per Week</p>
-      <h2 className="text-5xl font-bold">{salesData.length || 0}</h2>
+    <div className="w-full sm:w-1/4 p-4 text-center bg-white dark:bg-gray-800 shadow-md dark:shadow-inner rounded-lg">
+      <p className="text-sm text-gray-400 dark:text-gray-500">Total Sales per Week</p>
+      <h2 className="text-5xl font-bold text-black dark:text-white">{salesData.length || 0}</h2>
       <p className="text-sm text-green-500">+15</p>
-      <p className="text-xs text-gray-400">vs previous 7 days</p>
+      <p className="text-xs text-gray-400 dark:text-gray-500">vs previous 7 days</p>
     </div>
   );
 };
 
 const AverageContract = () => {
-  const theme = useTheme();
   return (
-    <div style={cardStyle(theme)} className="w-full sm:w-1/4 p-4 text-center">
-      <p className="text-sm text-gray-400">Average Sales</p>
-      <h2 className="text-5xl font-bold">KES 1,553</h2>
+    <div className="w-full sm:w-1/4 p-4 text-center bg-white dark:bg-gray-800 shadow-md dark:shadow-inner rounded-lg">
+      <p className="text-sm text-gray-400 dark:text-gray-500">Average Sales</p>
+      <h2 className="text-5xl font-bold text-black dark:text-white">KES 1,553</h2>
       <p className="text-sm text-green-500">+7.3%</p>
-      <p className="text-xs text-gray-400">vs previous 7 days</p>
+      <p className="text-xs text-gray-400 dark:text-gray-500">vs previous 7 days</p>
     </div>
   );
 };
 
 const GrowthRate = () => {
-  const theme = useTheme();
   return (
-    <div style={cardStyle(theme)} className="w-full sm:w-1/4 p-4 text-center">
-      <p className="text-sm text-gray-400">Sales Growth Rate</p>
-      <h2 className="text-5xl font-bold">8.29%</h2>
+    <div className="w-full sm:w-1/4 p-4 text-center bg-white dark:bg-gray-800 shadow-md dark:shadow-inner rounded-lg">
+      <p className="text-sm text-gray-400 dark:text-gray-500">Sales Growth Rate</p>
+      <h2 className="text-5xl font-bold text-black dark:text-white">8.29%</h2>
       <p className="text-sm text-green-500">+1.3%</p>
-      <p className="text-xs text-gray-400">vs previous 7 days</p>
+      <p className="text-xs text-gray-400 dark:text-gray-500">vs previous 7 days</p>
     </div>
   );
 };
@@ -63,7 +61,7 @@ const GrowthRate = () => {
 const SalesGrowthChart = ({ data }: { data: any }) => {
   return (
     <div className="w-full mt-6">
-      <h3 className="text-lg font-semibold mb-4">Sales Growth</h3>
+      <h3 className="text-lg font-semibold mb-4 text-black dark:text-white">Sales Growth</h3>
       <ChartComponent
         type="line"
         data={data}
@@ -78,7 +76,7 @@ const SalesGrowthChart = ({ data }: { data: any }) => {
 const SalesPerRepChart = ({ data }: { data: any }) => {
   return (
     <div className="w-full mt-6">
-      <h3 className="text-lg font-semibold mb-4">Sales per Rep</h3>
+      <h3 className="text-lg font-semibold mb-4 text-black dark:text-white">Sales per Rep</h3>
       <ChartComponent
         type="line"
         data={data}
@@ -193,23 +191,38 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <Grid container spacing={3}>
-        <Grid item xs={12} sm={6} md={4}>
-          <FormControl variant="outlined" size="small" sx={{ width: "100%" }}>
-            <InputLabel>Filter by Date Range</InputLabel>
-            <Select
-              value={dateRange}
-              onChange={handleDateRangeChange}
-              label="Auto date range"
-            >
-              <MenuItem value="Last7Days">Last 7 Days</MenuItem>
-              <MenuItem value="Last14Days">Last 14 Days</MenuItem>
-              <MenuItem value="Last30Days">Last 30 Days</MenuItem>
-              <MenuItem value="Last90Days">Last 90 Days</MenuItem>
-            </Select>
-          </FormControl>
-        </Grid>
+    <Grid container spacing={3}>
+      <Grid item xs={12} sm={6} md={4}>
+        <FormControl 
+          variant="outlined" 
+          size="small" 
+          fullWidth
+          className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 border border-gray-300 dark:border-gray-700"
+        >
+          <InputLabel 
+            className="text-gray-900 dark:text-gray-200"
+          >
+            Filter by Date Range
+          </InputLabel>
+          <Select
+            value={dateRange}
+            onChange={handleDateRangeChange}
+            label="Auto date range"
+            className="text-gray-900 dark:text-white bg-white dark:bg-gray-800"
+            MenuProps={{
+              PaperProps: {
+                className: 'bg-white dark:bg-gray-800'
+              }
+            }}
+          >
+            <MenuItem value="Last7Days" className="text-gray-900 dark:text-white">Last 7 Days</MenuItem>
+            <MenuItem value="Last14Days" className="text-gray-900 dark:text-white">Last 14 Days</MenuItem>
+            <MenuItem value="Last30Days" className="text-gray-900 dark:text-white">Last 30 Days</MenuItem>
+            <MenuItem value="Last90Days" className="text-gray-900 dark:text-white">Last 90 Days</MenuItem>
+          </Select>
+        </FormControl>
       </Grid>
+    </Grid>
 
       <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
         {TotalSales({ total: totalSales })}
