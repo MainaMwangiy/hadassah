@@ -245,10 +245,17 @@ const Dashboard: React.FC = () => {
   };
 
   const prepareBarChartData = (data: any[]): ChartData[] => {
-    const sortedData = data?.sort((a, b) => b.totalsales - a.totalsales).slice(0, 5); 
+    if (!Array.isArray(data) || data.length === 0) {
+      return [];
+    }
+    const sortedData = data.map(item => ({
+      ...item,
+      totalsales: Number(item.totalsales)
+    })).sort((a, b) => b.totalsales - a.totalsales).slice(0, 5);
+  
     return sortedData.map(item => ({
       name: item.name,
-      y: Number(item.totalsales) 
+      y: item.totalsales
     }));
   };
 

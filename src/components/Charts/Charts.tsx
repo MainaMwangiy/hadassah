@@ -19,86 +19,89 @@ interface ChartComponentProps {
 }
 
 const ChartComponent: React.FC<ChartComponentProps> = ({ type, data, title, yLabel, xLabel, seriesData }) => {
-  const formattedSeriesData: ChartData[] = type === 'pie' ? seriesData : data.map((item) => ({
-    name: item.name,
-    y: Number(item.sellingprice || item.amount || item.amountsold),
-    category: dayjs(item.createdon).format('DD-MM-YYYY'),
-  }));
-
-  if (type === 'bar') {
-    formattedSeriesData.sort((a, b) => b.y - a.y).slice(0, 10);
-  }
-
-  const options: Options = {
-    chart: {
-      type: type,
-    },
-    title: {
-      text: title,
-    },
-    xAxis: {
-      categories: type === 'pie' ? undefined : formattedSeriesData.map((item: any) => item.category),
-      title: {
-        text: xLabel,
-      },
-    },
-    yAxis: {
-      title: {
-        text: yLabel,
-      },
-    },
-    series: [
-      {
-        data: formattedSeriesData,
+    let chartData: ChartData[] = [];
+  
+    if (type === 'pie') {
+      chartData = seriesData;
+    } else if (type === 'bar') {
+      chartData = seriesData;
+    } else {
+      chartData = data.map(item => ({
+        name: item.name,
+        y: Number(item.sellingprice || item.amount || item.amountsold),
+        category: dayjs(item.createdon).format('DD-MM-YYYY'),
+      }));
+    }
+  
+    const options: Options = {
+      chart: {
         type: type,
-        name: title,
-        dataLabels: {
-          enabled: type !== 'line',
-          format: type === 'pie' ? '<b>{point.name}</b>: {point.percentage:.1f}%' : '{point.y}',
+      },
+      title: {
+        text: title,
+      },
+      xAxis: {
+        categories: type === 'pie' ? undefined : chartData.map((item: any) => item.category || item.name),
+        title: {
+          text: xLabel,
         },
       },
-    ],
-    plotOptions: {
-      pie: {
-        allowPointSelect: true,
-        cursor: 'pointer',
-        dataLabels: {
-          enabled: true,
-          format: '<b>{point.name}</b>: {point.percentage:.1f}%',
+      yAxis: {
+        title: {
+          text: yLabel,
         },
       },
-      bar: {
-        dataLabels: {
-          enabled: true,
-          format: '{point.y}',
-        },
-      },
-      line: {
-        dataLabels: {
-          enabled: false,
-        },
-      },
-    },
-    responsive: {
-      rules: [
+      series: [
         {
-          condition: {
-            maxWidth: 600,
-          },
-          chartOptions: {
-            legend: {
-              enabled: false,
-            },
+          data: chartData,
+          type: type,
+          name: title,
+          dataLabels: {
+            enabled: type !== 'line',
+            format: type === 'pie' ? '<b>{point.name}</b>: {point.percentage:.1f}%' : '{point.y}',
           },
         },
       ],
-    },
-    credits: {
-      enabled: false,
-    },
-  };
-
-  return <HighchartsReact highcharts={Highcharts} options={options} />;
-};
+      plotOptions: {
+        pie: {
+          allowPointSelect: true,
+          cursor: 'pointer',
+          dataLabels: {
+            enabled: true,
+            format: '<b>{point.name}</b>: {point.percentage:.1f}%',
+          },
+        },
+        bar: {
+          dataLabels: {
+            enabled: true,
+            format: '{point.y}',
+          },
+        },
+        line: {
+          dataLabels: {
+            enabled: false,
+          },
+        },
+      },
+      responsive: {
+        rules: [
+          {
+            condition: {
+              maxWidth: 600,
+            },
+            chartOptions: {
+              legend: {
+                enabled: false,
+              },
+            },
+          },
+        ],
+      },
+      credits: {
+        enabled: false,
+      },
+    };
+    return <HighchartsReact highcharts={Highcharts} options={options} />;
+  }; 
 
 export default ChartComponent;
