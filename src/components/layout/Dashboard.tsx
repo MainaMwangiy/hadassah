@@ -5,6 +5,18 @@ import axios from "axios";
 import { useSnackbar } from "notistack";
 import utils from "../../utils";
 
+interface SalesData {
+  totalsalescount: string;
+  productid: number;
+  name: string;
+  totalsales: string;
+}
+
+interface ChartData {
+  name: string;
+  y: number;
+}
+
 const TotalSales = ({ total }: { total: number }) => {
   return (
     <div className="w-full sm:w-1/4 p-4 text-center bg-white dark:bg-gray-800 shadow-md dark:shadow-inner rounded-lg">
@@ -49,7 +61,7 @@ const GrowthRate = () => {
   );
 };
 
-const SalesGrowthChart = ({ data }: { data: any }) => {
+const SalesGrowthChart = ({ data, seriesData }: { data: any, seriesData: ChartData[] }) => {
   return (
     <div className="w-full mt-6">
       <h3 className="text-lg font-semibold mb-4 text-black dark:text-white">Sales Growth</h3>
@@ -58,13 +70,13 @@ const SalesGrowthChart = ({ data }: { data: any }) => {
         data={data}
         title="Sales Over Time"
         yLabel="Amount (KES)"
-        xLabel="Date"
+        seriesData={seriesData}
       />
     </div>
   );
 };
 
-const SalesPerRepChart = ({ data }: { data: any }) => {
+const SalesPerRepChart = ({ data, seriesData }: { data: any, seriesData: ChartData[] }) => {
   return (
     <div className="w-full mt-6">
       <h3 className="text-lg font-semibold mb-4 text-black dark:text-white">Sales per Rep</h3>
@@ -74,6 +86,37 @@ const SalesPerRepChart = ({ data }: { data: any }) => {
         title="Products Over Time"
         yLabel="Amount (KES)"
         xLabel="Date"
+        seriesData={seriesData}
+      />
+    </div>
+  );
+};
+
+const Top5ProductsSales = ({ data, seriesData }: { data: any, seriesData: ChartData[] }) => {
+  return (
+    <div className="w-full mt-6">
+      <h3 className="text-lg font-semibold mb-4 text-black dark:text-white">Top 5 Products Sales</h3>
+      <ChartComponent
+        type="pie"
+        data={data}
+        title="Total Spent by User"
+        yLabel="Amount"
+        seriesData={seriesData}
+      />
+    </div>
+  );
+};
+
+const TopSellingProductsChart = ({ data, seriesData }: { data: any, seriesData: ChartData[] }) => {
+  return (
+    <div className="w-full mt-6">
+      <h3 className="text-lg font-semibold mb-4 text-black dark:text-white">Top Selling Products</h3>
+      <ChartComponent
+        type="bar"
+        data={data}
+        title="Top Products by Sales"
+        yLabel="Total Sales (KES)"
+        seriesData={seriesData}
       />
     </div>
   );
@@ -83,6 +126,7 @@ const Dashboard: React.FC = () => {
   const [salesData, setSalesData] = useState<any>([]);
   const [productsData, setProductsData] = useState<any>([]);
   const [totalSales, setTotalSales] = useState(0);
+  const [totalSalesAnalytics, setTotalSalesAnalytics] = useState<any>([]);
   const [loading, setLoading] = useState(true);
   const { enqueueSnackbar } = useSnackbar();
   const [dateRange, setDateRange] = useState("Last7Days");
@@ -167,10 +211,23 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  const fetchSalesProductsAnalytics = async () => {
+    try {
+      const url = `${utils.baseUrl}/api/products/sales/analytics`;
+      const response = await axios.post(url, {
+        filters,
+        headers: { 'Content-Type': 'application/json' },
+      });
+      setTotalSalesAnalytics(response?.data);
+    } catch (error) {
+      enqueueSnackbar("Total Sales Loading Failed. Please try again.", { variant: "error" });
+    }
+  };
+
   useEffect(() => {
     const fetchAllData = async () => {
       setLoading(true);
-      await Promise.all([fetchData(), fetchHarvestsData(), fetchTotalSales()]);
+      await Promise.all([fetchData(), fetchHarvestsData(), fetchTotalSales(), fetchSalesProductsAnalytics()]);
       setLoading(false);
     };
     fetchAllData();
@@ -179,6 +236,37 @@ const Dashboard: React.FC = () => {
   if (loading) {
     return <div>Loading...</div>;
   }
+
+  const prepareLineChartData = (data: any[]): ChartData[] => {
+    return data.map(item => ({
+      name: item.createdon, 
+      y: Number(item.totalprice) 
+    }));
+  };
+
+  const prepareBarChartData = (data: any[]): ChartData[] => {
+    const sortedData = data?.sort((a, b) => b.totalsales - a.totalsales).slice(0, 5); 
+    return sortedData.map(item => ({
+      name: item.name,
+      y: Number(item.totalsales) 
+    }));
+  };
+
+  const preparePieChartData = (data: any[]): ChartData[] => {
+    if (!Array.isArray(data) || data.length === 0) {
+      return [];
+    }
+  
+    return data.map(item => ({
+      name: item.name,
+      y: Number(item.totalsales)
+    }));
+  };
+  
+
+  const lineChartData = prepareLineChartData(salesData);
+  const barChartData = prepareBarChartData(totalSalesAnalytics?.data);
+  const pieChartData = preparePieChartData(totalSalesAnalytics?.data);
 
   return (
     <div className="space-y-6">
@@ -223,10 +311,13 @@ const Dashboard: React.FC = () => {
       </div>
       <div className="flex flex-col sm:flex-row sm:space-x-4 mt-6">
         <div className="w-full sm:w-1/2 mb-6 sm:mb-0">
-          <SalesGrowthChart data={salesData} />
+          <Top5ProductsSales data={totalSalesAnalytics} seriesData={pieChartData} />
         </div>
         <div className="w-full sm:w-1/2">
-          <SalesPerRepChart data={productsData} />
+          <SalesGrowthChart data={salesData} seriesData={lineChartData} />
+        </div>
+        <div className="w-full sm:w-1/2">
+          <TopSellingProductsChart data={productsData} seriesData={barChartData} />
         </div>
       </div>
     </div>
