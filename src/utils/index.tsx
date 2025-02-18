@@ -153,6 +153,27 @@ const utils = {
   getKeyField: (config: any): string => {
     const field = config.customKeyField || config.keyField || '';
     return field.toLowerCase();
+  },
+  getLasDays: (days: any): any => {
+    let avrValue: number | undefined;
+    switch (days) {
+      case "Last7Days":
+        avrValue =  7;
+        break;
+      case "Last14Days":
+        avrValue =  14;
+        break;
+      case "Last30Days":
+        avrValue =  30;
+        break;
+      case "Last90Days":
+        avrValue =  90;
+        break;
+      default:
+        avrValue = undefined;
+        break;
+    }
+    return avrValue;
   }
 };
 
