@@ -18,7 +18,7 @@ const Modal: React.FC<ModalProps & { [key: string]: any }> = ({ isOpen, onClose,
   if (!isOpen) return null;
 
   let mainTitle = title || "";
-  if (children) { 
+  if (children && !mainTitle) { 
     const { config, mode } = children.props;
     mainTitle = mode === 'edit' ? `Edit ${config?.keyField}` : `Add ${config?.keyField}`;
   }

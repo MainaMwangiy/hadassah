@@ -32,42 +32,11 @@ const Form: React.FC<GenericFormProps & { mode: Mode, [key: string]: any }> = ({
   const isUpdate = mode === 'edit';
   const limitCreate = config?.limit && !isUpdate;
   const { apiRequest } = useApi();
-  const keyField = utils.getKeyField(config);
   const [fieldsToShow, setFieldsToShow] = useState(config.fields.filter(field => field.form !== false));
-  const defaultInitialValues = fieldsToShow.reduce<Record<string, any>>((acc, field) => {
-    const fieldValue = initialValues[field.name];
-    if (field?.isRole) {
-      const tempFieldValue = utils.getRoles(fieldValue) || 'user';
-      const val = tempFieldValue.toLowerCase();
-      acc[field.name] = val ?? "";
-    } else {
-      acc[field.name] = typeof fieldValue === "object" && fieldValue !== null ? JSON.stringify(fieldValue) : fieldValue ?? "";
-    }
-    return acc;
-  }, { [`${keyField.toLowerCase()}id`]: initialValues[`${keyField.toLowerCase()}id`] ?? "" });
   const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
   const [showCancelConfirmation, setShowCancelConfirmation] = useState(false);
   const { setSubmissionState } = useSubmissionContext();
   const { enqueueSnackbar } = useSnackbar();
-  const clientorganizationid = localStorage.getItem("clientorganizationid") || "";
-  const clientorganizations = localStorage.getItem("clientorganizations") || "";
-  let allOrganizations: any[] = [];
-  if (clientorganizations && clientorganizations.trim() !== '') {
-    try {
-      allOrganizations = JSON.parse(clientorganizations);
-    } catch (e) {
-      enqueueSnackbar("Failed to parse clientorganizations:", { variant: "error" });
-    }
-  }
-  const updateLocal = config?.updateLocal;
-  const validationSchema = Yup.object(
-    fieldsToShow.reduce<Record<string, any>>((schema, field) => {
-      if (field.required) {
-        schema[field.name] = Yup.string().required(`${field.label} is required`);
-      }
-      return schema;
-    }, {})
-  );
 
   const formik = useFormik({
     initialValues: initialValues,
@@ -101,7 +70,7 @@ const Form: React.FC<GenericFormProps & { mode: Mode, [key: string]: any }> = ({
         }
       }
       const lookupKey = `${config.customKey?.toLowerCase() || config.keyField.toLowerCase()}id`;
-      const id = customPayload[lookupKey];
+      const id = staticValues[lookupKey] || customPayload[lookupKey];
       const endpoint = mode === 'edit' ? config.apiEndpoints.update : config.apiEndpoints.create;
       const url = mode === 'edit' && id ? `${endpoint.url}/${id}` : endpoint.url;
       const defaultPayload = endpoint.payload || {};
