@@ -4,6 +4,7 @@ import ChartComponent from "../Charts/Charts";
 import axios from "axios";
 import { useSnackbar } from "notistack";
 import utils from "../../utils";
+import { useApi } from "../../hooks/Apis";
 
 interface SalesData {
   totalsalescount: string;
@@ -121,6 +122,7 @@ const Dashboard: React.FC = () => {
   const [totalSalesAnalytics, setTotalSalesAnalytics] = useState<any>([]);
   const [loading, setLoading] = useState(true);
   const { enqueueSnackbar } = useSnackbar();
+  const { apiRequest } = useApi();
   const [dateRange, setDateRange] = useState("Last7Days");
   const [filters, setFilters] = useState<{ startDate: string; endDate: string }>({
     startDate: new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0], 
@@ -216,10 +218,19 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  const fetchProductsData = async () => {
+    setLoading(true);
+    const url =  `${utils.baseUrl}/api/products/list`
+    const tempPayload = {page:1, pageSize: 100};
+    const response = await apiRequest({ method: "POST", url: url, data: tempPayload });
+    localStorage.setItem('products', JSON.stringify(response?.data))
+    setLoading(false);
+  };
+
   useEffect(() => {
     const fetchAllData = async () => {
       setLoading(true);
-      await Promise.all([fetchData(), fetchHarvestsData(), fetchTotalSales(), fetchSalesProductsAnalytics()]);
+      await Promise.all([fetchData(), fetchHarvestsData(), fetchTotalSales(), fetchSalesProductsAnalytics(), fetchProductsData()]);
       setLoading(false);
     };
     fetchAllData();
