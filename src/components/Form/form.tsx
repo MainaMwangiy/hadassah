@@ -49,7 +49,7 @@ const Form: React.FC<GenericFormProps & { mode: Mode, [key: string]: any }> = ({
       }, {})
     ),
     enableReinitialize: true,
-    onSubmit: async (values) => {
+    onSubmit: async (values, { setSubmitting }) => {
       const staticValues = { ...values };
       let localData: Record<string, ProductOption[]> = {};
       config.fields.forEach(field => {
@@ -60,8 +60,9 @@ const Form: React.FC<GenericFormProps & { mode: Mode, [key: string]: any }> = ({
         }
       });
       const customPayload: CustomPayload = {};
+      let productInfo: any;
       if (config.customSale) {
-        const productInfo = localData.product?.find(
+        productInfo = localData.product?.find(
           (item: ProductOption) => item.productid === parseInt(isUpdate ? staticValues.productid : staticValues.name)
         );
         if (productInfo) {
@@ -69,15 +70,41 @@ const Form: React.FC<GenericFormProps & { mode: Mode, [key: string]: any }> = ({
           customPayload.name = productInfo.name;
         }
       }
+      // Sales Validations
+      const buyingPrice = Number(productInfo?.price) || 0;
+      if (Number(staticValues?.sellingprice) < buyingPrice) {
+        enqueueSnackbar("Selling Price cannot be less than Buying Price", { variant: "error" });
+        setShowCancelConfirmation(false);
+        onClose();
+        setSubmitting(false);
+        return;
+      }
+      
+      if (productInfo && staticValues.quantity) {
+        const availableStock = productInfo?.quantity || 0;
+        if (Number(staticValues.quantity) > Number(availableStock)) {
+          enqueueSnackbar(`You only have ${availableStock} Products in stock. Please restock first to make a sale of ${Number(staticValues.quantity)}!`, { variant: "error" });
+          setShowCancelConfirmation(false);
+          onClose();
+          setSubmitting(false);     
+          return;
+        }
+      }
+      
       const lookupKey = `${config.customKey?.toLowerCase() || config.keyField.toLowerCase()}id`;
       const id = staticValues[lookupKey] || customPayload[lookupKey];
       const endpoint = mode === 'edit' ? config.apiEndpoints.update : config.apiEndpoints.create;
       const url = mode === 'edit' && id ? `${endpoint.url}/${id}` : endpoint.url;
       const defaultPayload = endpoint.payload || {};
       const requestData = { ...defaultPayload, ...staticValues, ...customPayload };
-      await apiRequest({ method: "POST", url, data: requestData });
-      setSubmissionState(true);
-      onClose();
+      
+      try {
+        await apiRequest({ method: "POST", url, data: requestData });
+        setSubmissionState(true);
+        onClose();
+      } catch (error) {
+        setSubmitting(false);
+      }
     },
   });
 
