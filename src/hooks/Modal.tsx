@@ -63,14 +63,6 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
     clientuserid: user?.clientuserid || ""
   };
 
-
-  useEffect(() => {
-    const orgs = localStorage.getItem("clientorganizations");
-    if (orgs) {
-      setClientOrganizations(JSON.parse(orgs));
-    }
-  }, []);
-
   const formik = useFormik<{
     name: string;
     email: string;

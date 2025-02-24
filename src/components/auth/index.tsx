@@ -13,25 +13,6 @@ const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-
-  const fetchData = async () => {
-    try {
-      console.log("utils.baseUrl", utils.baseUrl)
-      const url = `${utils.baseUrl}/api/clientorganizations/list`;
-      const response = await axios.post(url, {
-        headers: { 'Content-Type': 'application/json' },
-      });
-      const clientorgs = response.data.data;
-      localStorage.setItem('clientorganizations', JSON.stringify(clientorgs))
-    } catch (error) {
-      enqueueSnackbar("User Loading Failed. Please try again.", { variant: "error" });
-    }
-  }
-
-  useEffect(() => {
-    fetchData();
-  }, [])
 
   const formik = useFormik({
     initialValues: {
