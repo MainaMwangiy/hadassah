@@ -16,6 +16,7 @@ export const salesConfig: ModuleConfig = {
   hideActionMenu: false,
   customSale: true,
   customKey: 'product',
+  customKeyField: 'sales',
   apiEndpoints: {
     list: {
       url: `${utils.baseUrl}/api/sales/list`
