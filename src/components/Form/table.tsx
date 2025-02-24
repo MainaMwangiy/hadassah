@@ -63,8 +63,7 @@ const Table: React.FC<GenericTableProps> = ({ config, onEdit, params, hideAction
   const confirmDeleteExpense = async () => {
     setLoading(true);
     const { payload } = config.apiEndpoints.delete;
-    const mandatoryParams = { clientorganizationid: clientorganizationid };
-    const tempParams = { ...payload, ...mandatoryParams }
+    const tempParams = { ...payload }
     if (deleteId !== null) {
       const data = {
         ...tempParams,
@@ -154,7 +153,7 @@ const Table: React.FC<GenericTableProps> = ({ config, onEdit, params, hideAction
           <ConfirmationDialog
             open={showDeleteDialog}
             title="Confirm Deletion"
-            content="Are you sure you want to delete this expense?"
+            content={`Are you sure you want to delete this ${config.title}?`}
             onCancel={() => setShowDeleteDialog(false)}
             onConfirm={confirmDeleteExpense}
             confirmDiscard="Delete"
