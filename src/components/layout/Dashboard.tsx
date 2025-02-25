@@ -5,6 +5,7 @@ import axios from "axios";
 import { useSnackbar } from "notistack";
 import utils from "../../utils";
 import { useApi } from "../../hooks/Apis";
+import Loader from "../../hooks/Loader";
 
 interface SalesData {
   totalsalescount: string;
@@ -22,7 +23,7 @@ const TotalSales = ({ total, days }: { total: any, days:any }) => {
   let daysNo = utils.getLasDays(days);
   return (
     <div className="w-full sm:w-1/4 p-4 text-center bg-white dark:bg-gray-800 shadow-md dark:shadow-inner rounded-lg">
-      <p className="text-sm text-gray-400 dark:text-gray-500">Total Sales</p>
+      <p className="text-sm text-gray-400 dark:text-gray-500">Total Sales Amount</p>
       <h2 className="text-4xl font-bold text-black dark:text-white">{`KES ${new Intl.NumberFormat('en-KE').format(total)}`}</h2>
       <p className="text-sm text-green-500">+20%</p>
       <p className="text-xs text-gray-400 dark:text-gray-500">{`vs previous ${daysNo} days`}</p>
@@ -34,7 +35,7 @@ const SalesPerPeriod = ({ salesData, days }: { salesData: any, days:any }) => {
   let daysNo = utils.getLasDays(days);
   return (
     <div className="w-full sm:w-1/4 p-4 text-center bg-white dark:bg-gray-800 shadow-md dark:shadow-inner rounded-lg">
-      <p className="text-sm text-gray-400 dark:text-gray-500">Total Sales per Week</p>
+      <p className="text-sm text-gray-400 dark:text-gray-500">{`Total Sales Count in ${daysNo} Last Days`}</p>
       <h2 className="text-4xl font-bold text-black dark:text-white">{salesData.length || 0}</h2>
       <p className="text-sm text-green-500">+15</p>
       <p className="text-xs text-gray-400 dark:text-gray-500">{`vs previous ${daysNo} days`}</p>
@@ -237,7 +238,7 @@ const Dashboard: React.FC = () => {
   }, [filters]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Loader /> ;
   }
 
   const prepareLineChartData = (data: any[]): ChartData[] => {
