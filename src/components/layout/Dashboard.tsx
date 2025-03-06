@@ -58,13 +58,18 @@ const AverageSales = ({ total, days }: { total: any, days:any }) => {
   );
 };
 
-const GrowthRate = ({ days }: { days:any }) => {
+const GrowthRate = ({ days, growthData }: { days:any, growthData: any }) => {
   let daysNo = utils.getLasDays(days);
+  const growthPercentage = growthData?.growthPercentage || 0;
+  const previousGrowthPercentage = 0; // This could be calculated from historical data if needed
+
   return (
     <div className="w-full sm:w-1/4 p-4 text-center bg-white dark:bg-gray-800 shadow-md dark:shadow-inner rounded-lg">
       <p className="text-sm text-gray-400 dark:text-gray-500">Sales Growth Rate</p>
-      <h2 className="text-4xl font-bold text-black dark:text-white">8.29%</h2>
-      <p className="text-sm text-green-500">+1.3%</p>
+      <h2 className="text-4xl font-bold text-black dark:text-white">{`${growthPercentage.toFixed(2)}%`}</h2>
+      <p className={`text-sm ${growthPercentage >= previousGrowthPercentage ? 'text-green-500' : 'text-red-500'}`}>
+        {growthPercentage >= previousGrowthPercentage ? '+' : ''}{growthPercentage.toFixed(2)}%
+      </p>
       <p className="text-xs text-gray-400 dark:text-gray-500">{`vs previous ${daysNo} days`}</p>
     </div>
   );
@@ -121,6 +126,7 @@ const Dashboard: React.FC = () => {
   const [productsData, setProductsData] = useState<any>([]);
   const [totalSales, setTotalSales] = useState(0);
   const [totalSalesAnalytics, setTotalSalesAnalytics] = useState<any>([]);
+  const [salesGrowth, setSalesGrowth] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const { enqueueSnackbar } = useSnackbar();
   const { apiRequest } = useApi();
@@ -219,6 +225,19 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  const fetchSalesGrowth = async () => {
+    try {
+      const url = `${utils.baseUrl}/api/sales/growth`;
+      const response = await axios.post(url, {
+        filters,
+        headers: { 'Content-Type': 'application/json' },
+      });
+      setSalesGrowth(response.data.data);
+    } catch (error) {
+      enqueueSnackbar("Sales Growth Data Loading Failed. Please try again.", { variant: "error" });
+    }
+  };
+
   const fetchProductsData = async () => {
     setLoading(true);
     const url =  `${utils.baseUrl}/api/products/list`
@@ -231,7 +250,14 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     const fetchAllData = async () => {
       setLoading(true);
-      await Promise.all([fetchData(), fetchHarvestsData(), fetchTotalSales(), fetchSalesProductsAnalytics(), fetchProductsData()]);
+      await Promise.all([
+        fetchData(), 
+        fetchHarvestsData(), 
+        fetchTotalSales(), 
+        fetchSalesProductsAnalytics(), 
+        fetchProductsData(),
+        fetchSalesGrowth()
+      ]);
       setLoading(false);
     };
     fetchAllData();
@@ -280,54 +306,55 @@ const Dashboard: React.FC = () => {
   const pieChartData = preparePieChartData(totalSalesAnalytics?.data);
 
   return (
-    <div className="space-y-6">
-    <Grid container spacing={3}>
+    <div className="space-y-4 p-2 sm:p-4">
+      <Grid container spacing={3}>
       <Grid item xs={12} sm={6} md={4}>
-        <FormControl 
-          variant="outlined" 
-          size="small" 
-          fullWidth
-          className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 border border-gray-300 dark:border-gray-700"
-        >
-          <InputLabel 
-            className="text-gray-900 dark:text-gray-200"
+          <FormControl 
+            variant="outlined" 
+            size="small" 
+            fullWidth
+            className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 border border-gray-300 dark:border-gray-700"
           >
-            Filter by Date Range
-          </InputLabel>
-          <Select
-            value={dateRange}
-            onChange={handleDateRangeChange}
-            label="Auto date range"
-            className="text-gray-900 dark:text-white bg-white dark:bg-gray-800"
-            MenuProps={{
-              PaperProps: {
-                className: 'bg-white dark:bg-gray-800'
-              }
-            }}
-          >
-            <MenuItem value="Last7Days" className="text-gray-900 dark:text-white">Last 7 Days</MenuItem>
-            <MenuItem value="Last14Days" className="text-gray-900 dark:text-white">Last 14 Days</MenuItem>
-            <MenuItem value="Last30Days" className="text-gray-900 dark:text-white">Last 30 Days</MenuItem>
-            <MenuItem value="Last90Days" className="text-gray-900 dark:text-white">Last 90 Days</MenuItem>
-          </Select>
-        </FormControl>
+            <InputLabel 
+              className="text-gray-900 dark:text-gray-200"
+            >
+              Filter by Date Range
+            </InputLabel>
+            <Select
+              value={dateRange}
+              onChange={handleDateRangeChange}
+              label="Auto date range"
+              className="text-gray-900 dark:text-white bg-white dark:bg-gray-800"
+              MenuProps={{
+                PaperProps: {
+                  className: 'bg-white dark:bg-gray-800'
+                }
+              }}
+            >
+              <MenuItem value="Last7Days" className="text-gray-900 dark:text-white">Last 7 Days</MenuItem>
+              <MenuItem value="Last14Days" className="text-gray-900 dark:text-white">Last 14 Days</MenuItem>
+              <MenuItem value="Last30Days" className="text-gray-900 dark:text-white">Last 30 Days</MenuItem>
+              <MenuItem value="Last90Days" className="text-gray-900 dark:text-white">Last 90 Days</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
       </Grid>
-    </Grid>
 
       <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
         {TotalSales({ total: totalSales, days: dateRange  })}
         {SalesPerPeriod({ salesData, days: dateRange  })}
         {AverageSales({ total: totalSales, days: dateRange })}
-        {GrowthRate({ days: dateRange })}
+        {GrowthRate({ days: dateRange, growthData: salesGrowth })}
       </div>
-      <div className="flex flex-col sm:flex-row sm:space-x-4 mt-6">
-        <div className="w-full sm:w-1/2 mb-6 sm:mb-0">
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="w-full">
           <Top5ProductsSales data={totalSalesAnalytics} seriesData={pieChartData} />
         </div>
-        <div className="w-full sm:w-1/2">
+        <div className="w-full">
           <SalesGrowthChart data={salesData} seriesData={lineChartData} />
         </div>
-        <div className="w-full sm:w-1/2">
+        <div className="w-full lg:col-span-2">
           <TopSellingProductsChart data={productsData} seriesData={barChartData} />
         </div>
       </div>
