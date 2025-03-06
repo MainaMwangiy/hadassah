@@ -280,39 +280,39 @@ const Dashboard: React.FC = () => {
   const pieChartData = preparePieChartData(totalSalesAnalytics?.data);
 
   return (
-    <div className="space-y-6">
-    <Grid container spacing={3}>
+    <div className="space-y-4 p-2 sm:p-4">
+      <Grid container spacing={3}>
       <Grid item xs={12} sm={6} md={4}>
-        <FormControl 
-          variant="outlined" 
-          size="small" 
-          fullWidth
-          className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 border border-gray-300 dark:border-gray-700"
-        >
-          <InputLabel 
-            className="text-gray-900 dark:text-gray-200"
+          <FormControl 
+            variant="outlined" 
+            size="small" 
+            fullWidth
+            className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 border border-gray-300 dark:border-gray-700"
           >
-            Filter by Date Range
-          </InputLabel>
-          <Select
-            value={dateRange}
-            onChange={handleDateRangeChange}
-            label="Auto date range"
-            className="text-gray-900 dark:text-white bg-white dark:bg-gray-800"
-            MenuProps={{
-              PaperProps: {
-                className: 'bg-white dark:bg-gray-800'
-              }
-            }}
-          >
-            <MenuItem value="Last7Days" className="text-gray-900 dark:text-white">Last 7 Days</MenuItem>
-            <MenuItem value="Last14Days" className="text-gray-900 dark:text-white">Last 14 Days</MenuItem>
-            <MenuItem value="Last30Days" className="text-gray-900 dark:text-white">Last 30 Days</MenuItem>
-            <MenuItem value="Last90Days" className="text-gray-900 dark:text-white">Last 90 Days</MenuItem>
-          </Select>
-        </FormControl>
+            <InputLabel 
+              className="text-gray-900 dark:text-gray-200"
+            >
+              Filter by Date Range
+            </InputLabel>
+            <Select
+              value={dateRange}
+              onChange={handleDateRangeChange}
+              label="Auto date range"
+              className="text-gray-900 dark:text-white bg-white dark:bg-gray-800"
+              MenuProps={{
+                PaperProps: {
+                  className: 'bg-white dark:bg-gray-800'
+                }
+              }}
+            >
+              <MenuItem value="Last7Days" className="text-gray-900 dark:text-white">Last 7 Days</MenuItem>
+              <MenuItem value="Last14Days" className="text-gray-900 dark:text-white">Last 14 Days</MenuItem>
+              <MenuItem value="Last30Days" className="text-gray-900 dark:text-white">Last 30 Days</MenuItem>
+              <MenuItem value="Last90Days" className="text-gray-900 dark:text-white">Last 90 Days</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
       </Grid>
-    </Grid>
 
       <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
         {TotalSales({ total: totalSales, days: dateRange  })}
@@ -320,14 +320,15 @@ const Dashboard: React.FC = () => {
         {AverageSales({ total: totalSales, days: dateRange })}
         {GrowthRate({ days: dateRange })}
       </div>
-      <div className="flex flex-col sm:flex-row sm:space-x-4 mt-6">
-        <div className="w-full sm:w-1/2 mb-6 sm:mb-0">
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="w-full">
           <Top5ProductsSales data={totalSalesAnalytics} seriesData={pieChartData} />
         </div>
-        <div className="w-full sm:w-1/2">
+        <div className="w-full">
           <SalesGrowthChart data={salesData} seriesData={lineChartData} />
         </div>
-        <div className="w-full sm:w-1/2">
+        <div className="w-full lg:col-span-2">
           <TopSellingProductsChart data={productsData} seriesData={barChartData} />
         </div>
       </div>
