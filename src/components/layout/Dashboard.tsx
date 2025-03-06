@@ -58,13 +58,18 @@ const AverageSales = ({ total, days }: { total: any, days:any }) => {
   );
 };
 
-const GrowthRate = ({ days }: { days:any }) => {
+const GrowthRate = ({ days, growthData }: { days:any, growthData: any }) => {
   let daysNo = utils.getLasDays(days);
+  const growthPercentage = growthData?.growthPercentage || 0;
+  const previousGrowthPercentage = 0; // This could be calculated from historical data if needed
+
   return (
     <div className="w-full sm:w-1/4 p-4 text-center bg-white dark:bg-gray-800 shadow-md dark:shadow-inner rounded-lg">
       <p className="text-sm text-gray-400 dark:text-gray-500">Sales Growth Rate</p>
-      <h2 className="text-4xl font-bold text-black dark:text-white">8.29%</h2>
-      <p className="text-sm text-green-500">+1.3%</p>
+      <h2 className="text-4xl font-bold text-black dark:text-white">{`${growthPercentage.toFixed(2)}%`}</h2>
+      <p className={`text-sm ${growthPercentage >= previousGrowthPercentage ? 'text-green-500' : 'text-red-500'}`}>
+        {growthPercentage >= previousGrowthPercentage ? '+' : ''}{growthPercentage.toFixed(2)}%
+      </p>
       <p className="text-xs text-gray-400 dark:text-gray-500">{`vs previous ${daysNo} days`}</p>
     </div>
   );
@@ -121,6 +126,7 @@ const Dashboard: React.FC = () => {
   const [productsData, setProductsData] = useState<any>([]);
   const [totalSales, setTotalSales] = useState(0);
   const [totalSalesAnalytics, setTotalSalesAnalytics] = useState<any>([]);
+  const [salesGrowth, setSalesGrowth] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const { enqueueSnackbar } = useSnackbar();
   const { apiRequest } = useApi();
@@ -219,6 +225,19 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  const fetchSalesGrowth = async () => {
+    try {
+      const url = `${utils.baseUrl}/api/sales/growth`;
+      const response = await axios.post(url, {
+        filters,
+        headers: { 'Content-Type': 'application/json' },
+      });
+      setSalesGrowth(response.data.data);
+    } catch (error) {
+      enqueueSnackbar("Sales Growth Data Loading Failed. Please try again.", { variant: "error" });
+    }
+  };
+
   const fetchProductsData = async () => {
     setLoading(true);
     const url =  `${utils.baseUrl}/api/products/list`
@@ -231,7 +250,14 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     const fetchAllData = async () => {
       setLoading(true);
-      await Promise.all([fetchData(), fetchHarvestsData(), fetchTotalSales(), fetchSalesProductsAnalytics(), fetchProductsData()]);
+      await Promise.all([
+        fetchData(), 
+        fetchHarvestsData(), 
+        fetchTotalSales(), 
+        fetchSalesProductsAnalytics(), 
+        fetchProductsData(),
+        fetchSalesGrowth()
+      ]);
       setLoading(false);
     };
     fetchAllData();
@@ -318,7 +344,7 @@ const Dashboard: React.FC = () => {
         {TotalSales({ total: totalSales, days: dateRange  })}
         {SalesPerPeriod({ salesData, days: dateRange  })}
         {AverageSales({ total: totalSales, days: dateRange })}
-        {GrowthRate({ days: dateRange })}
+        {GrowthRate({ days: dateRange, growthData: salesGrowth })}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
