@@ -7,7 +7,6 @@ import Pagination from "./pagination";
 import Loader from "../../hooks/Loader";
 import { useSubmissionContext } from "./context";
 import SearchInput from "../../hooks/SearchInput";
-import { useDebounce } from "use-debounce";
 import dayjs from "dayjs";
 import utils from "../../utils";
 
@@ -34,10 +33,21 @@ const Table: React.FC<GenericTableProps> = ({ config, onEdit, params, hideAction
   const [loading, setLoading] = useState(false);
   const { submissionState } = useSubmissionContext();
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [debouncedSearchTerm] = useDebounce(searchTerm, 1000);
   const clientorganizationid = localStorage.getItem('clientorganizationid') || "";
   const updateLocal = config?.updateLocal;
-  const fetchData = async () => {
+
+  const handleSearch = (value: string) => {
+    setCurrentPage(1); // Reset to first page when searching
+    fetchData(value);
+  };
+
+  const handleClearSearch = () => {
+    setCurrentPage(1); // Reset to first page when clearing search
+    setSearchTerm('');
+    fetchData(''); // Fetch data without search term
+  };
+
+  const fetchData = async (searchValue?: string) => {
     setLoading(true);
     const { url='', payload = {} } = config.apiEndpoints.list || {};
     const additionalParams = payload.hideProject ? {} : { projectid: rest?.id };
@@ -47,7 +57,7 @@ const Table: React.FC<GenericTableProps> = ({ config, onEdit, params, hideAction
       ...params,
       page: currentPage,
       pageSize: itemsPerPage,
-      searchTerm: debouncedSearchTerm,
+      searchTerm: searchValue || searchTerm,
       ...additionalParams,
       // ...mandatoryParams
     };
@@ -88,7 +98,7 @@ const Table: React.FC<GenericTableProps> = ({ config, onEdit, params, hideAction
 
   useEffect(() => {
     fetchData();
-  }, [config, currentPage, submissionState, debouncedSearchTerm, refreshCount]);
+  }, [config, currentPage, submissionState, refreshCount]);
 
   const renderCellContent = (field: any, item: any) => {
     if (field.type === 'date' && item[field.name]) {
@@ -110,7 +120,13 @@ const Table: React.FC<GenericTableProps> = ({ config, onEdit, params, hideAction
 
   return (
     <>       
-     {config?.addSearch && <SearchInput placeholder={ `Search for ${config?.title}`} searchTerm={debouncedSearchTerm} setSearchTerm={setSearchTerm} />}
+     {config?.addSearch && <SearchInput 
+        placeholder={`Search for ${config?.title}`} 
+        searchTerm={searchTerm} 
+        setSearchTerm={setSearchTerm}
+        onSearch={handleSearch}
+        onClear={handleClearSearch}
+      />}
       <div className="overflow-x-auto">
         {loading ? <Loader /> :
           <table className="min-w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg shadow-md">
