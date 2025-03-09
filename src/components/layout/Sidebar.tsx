@@ -1,5 +1,5 @@
 import React from "react";
-import { FaTachometerAlt, FaUsers } from "react-icons/fa";
+import { FaTachometerAlt } from "react-icons/fa";
 import { FcSalesPerformance } from "react-icons/fc";
 import { MdProductionQuantityLimits } from "react-icons/md";
 import { Link, useLocation } from "react-router-dom";
