@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FaBell, FaMoon, FaSun } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useDarkMode } from "../../hooks/DarkModeContext";
 import ProfileDropdown from "../../hooks/ProfileDropdown";
 import { AiOutlineMenu } from "react-icons/ai";
@@ -8,6 +8,7 @@ import { SidebarProps } from "../../types";
 
 const Header: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toggleDarkMode, darkMode } = useDarkMode();
 
   const [isDarkMode, setISDarkMode] = useState(darkMode);
@@ -33,22 +34,27 @@ const Header: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
           placeholder="Search"
         />
       </div> */}
-      <div className="flex items-center space-x-4">
-        <FaBell
-          className="text-gray-500 dark:text-gray-300 cursor-pointer"
+      <div className="flex items-center space-x-6">
+        <button
+          className={`p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${
+            location.pathname === '/notifications' ? 'bg-gray-100 dark:bg-gray-800' : ''
+          }`}
           onClick={() => navigate("/notifications")}
-        />
-        {darkMode ? (
-          <FaSun
-            className="text-gray-500 dark:text-gray-300 cursor-pointer"
-            onClick={handleToggleDarkMode}
-          />
-        ) : (
-          <FaMoon
-            className="text-gray-500 dark:text-gray-300 cursor-pointer"
-            onClick={handleToggleDarkMode}
-          />
-        )}
+        >
+          <FaBell className="text-xl text-gray-600 dark:text-gray-300" />
+        </button>
+        
+        <button
+          className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          onClick={handleToggleDarkMode}
+        >
+          {darkMode ? (
+            <FaSun className="text-xl text-gray-600 dark:text-gray-300" />
+          ) : (
+            <FaMoon className="text-xl text-gray-600 dark:text-gray-300" />
+          )}
+        </button>
+        
         <ProfileDropdown />
       </div>
     </header>
