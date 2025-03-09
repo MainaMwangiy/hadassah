@@ -12,6 +12,7 @@ import {productsConfig} from "./config/products/config";
 import { DarkModeProvider } from "./hooks/DarkModeContext";
 import { SubmissionProvider } from "./components/Form/context";
 import { salesConfig } from "./config/sales/config";
+import Notifications from "./components/Notifications";
 
 const App: React.FC = () => {
   return (
@@ -27,6 +28,7 @@ const App: React.FC = () => {
                   <Route path="/products" element={<ModulePage config={productsConfig} showAddNew={true}/>} />
                   <Route path="/sales" element={<ModulePage config={salesConfig} showAddNew={true}/>} />
                   <Route path="/profile" element={<Profile />} />
+                  <Route path="/notifications" element={<Notifications />} />
                 </Route>
                 <Route path="/" element={<Navigate to="/dashboard" />} />
               </Route>

@@ -9,7 +9,7 @@ const clientusername = clientuser?.name || '';
 export const productsConfig: ModuleConfig = {
   keyField: 'Product',
   title: "Products",
-  isImport: true,
+  isImport: false,
   isExport: true,
   showTitle: true,
   addSearch: true,

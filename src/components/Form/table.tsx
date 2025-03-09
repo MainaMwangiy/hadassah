@@ -33,7 +33,6 @@ const Table: React.FC<GenericTableProps> = ({ config, onEdit, params, hideAction
   const [loading, setLoading] = useState(false);
   const { submissionState } = useSubmissionContext();
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const clientorganizationid = localStorage.getItem('clientorganizationid') || "";
   const updateLocal = config?.updateLocal;
 
   const handleSearch = (value: string) => {
@@ -41,17 +40,15 @@ const Table: React.FC<GenericTableProps> = ({ config, onEdit, params, hideAction
     fetchData(value);
   };
 
-  const handleClearSearch = () => {
-    setCurrentPage(1); // Reset to first page when clearing search
+  const handleClearSearch = async () => {
     setSearchTerm('');
-    fetchData(''); // Fetch data without search term
+    setCurrentPage(1);
   };
 
   const fetchData = async (searchValue?: string) => {
     setLoading(true);
     const { url='', payload = {} } = config.apiEndpoints.list || {};
     const additionalParams = payload.hideProject ? {} : { projectid: rest?.id };
-    const mandatoryParams = { clientorganizationid: clientorganizationid };
     const tempPayload = {
       ...payload,
       ...params,
@@ -59,7 +56,6 @@ const Table: React.FC<GenericTableProps> = ({ config, onEdit, params, hideAction
       pageSize: itemsPerPage,
       searchTerm: searchValue || searchTerm,
       ...additionalParams,
-      // ...mandatoryParams
     };
     const response = await apiRequest({ method: "POST", url: url, data: tempPayload });
     setData(response?.data || []);
@@ -98,7 +94,7 @@ const Table: React.FC<GenericTableProps> = ({ config, onEdit, params, hideAction
 
   useEffect(() => {
     fetchData();
-  }, [config, currentPage, submissionState, refreshCount]);
+  }, [config, currentPage, submissionState, refreshCount, searchTerm]);
 
   const renderCellContent = (field: any, item: any) => {
     if (field.type === 'date' && item[field.name]) {

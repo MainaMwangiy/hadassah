@@ -1,12 +1,18 @@
 import React from "react";
-import { FaTachometerAlt, FaUsers } from "react-icons/fa";
+import { FaTachometerAlt } from "react-icons/fa";
 import { FcSalesPerformance } from "react-icons/fc";
 import { MdProductionQuantityLimits } from "react-icons/md";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import logo from '../assets/logo.jpg';
 import { SidebarProps } from "../../types";
 
 const Sidebar: React.FC<SidebarProps> = ({ isMobile, isOpen }) => {
+  const location = useLocation();
+
+  const isActive = (path: string) => {
+    return location.pathname === path;
+  };
+
   return (
     <aside
       className={`sidebar bg-white shadow-lg dark:bg-gray-900 text-gray-900 dark:text-gray-100 fixed inset-y-0 left-0 z-50 h-full transition-transform duration-300 transform ${isOpen || !isMobile ? "translate-x-0 w-64" : "-translate-x-full"}`} >
@@ -18,19 +24,34 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobile, isOpen }) => {
       <nav className="mt-6">
         <ul>
           <li className="mb-4">
-            <Link to="/dashboard" className="flex items-center text-lg p-2 hover:bg-gray-100 dark:hover:bg-gray-800">
+            <Link 
+              to="/dashboard" 
+              className={`flex items-center text-lg p-2 hover:bg-gray-100 dark:hover:bg-gray-800 ${
+                isActive('/dashboard') ? 'bg-gray-100 dark:bg-gray-800 font-semibold' : ''
+              }`}
+            >
               <FaTachometerAlt className="mr-3" />
               Dashboard
             </Link>
           </li>
           <li className="mb-4">
-            <Link to="/products" className="flex items-center text-lg p-2 hover:bg-gray-100 dark:hover:bg-gray-800">
+            <Link 
+              to="/products" 
+              className={`flex items-center text-lg p-2 hover:bg-gray-100 dark:hover:bg-gray-800 ${
+                isActive('/products') ? 'bg-gray-100 dark:bg-gray-800 font-semibold' : ''
+              }`}
+            >
               <MdProductionQuantityLimits className="mr-3" />
               Products
             </Link>
           </li>
           <li className="mb-4">
-            <Link to="/sales" className="flex items-center text-lg p-2 hover:bg-gray-100 dark:hover:bg-gray-800">
+            <Link 
+              to="/sales" 
+              className={`flex items-center text-lg p-2 hover:bg-gray-100 dark:hover:bg-gray-800 ${
+                isActive('/sales') ? 'bg-gray-100 dark:bg-gray-800 font-semibold' : ''
+              }`}
+            >
               <FcSalesPerformance className="mr-3" />
               Sales
             </Link>
