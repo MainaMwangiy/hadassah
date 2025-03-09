@@ -41,10 +41,9 @@ const Table: React.FC<GenericTableProps> = ({ config, onEdit, params, hideAction
     fetchData(value);
   };
 
-  const handleClearSearch = () => {
-    setCurrentPage(1); // Reset to first page when clearing search
+  const handleClearSearch = async () => {
     setSearchTerm('');
-    fetchData(''); // Fetch data without search term
+    setCurrentPage(1);
   };
 
   const fetchData = async (searchValue?: string) => {
@@ -98,7 +97,7 @@ const Table: React.FC<GenericTableProps> = ({ config, onEdit, params, hideAction
 
   useEffect(() => {
     fetchData();
-  }, [config, currentPage, submissionState, refreshCount]);
+  }, [config, currentPage, submissionState, refreshCount, searchTerm]);
 
   const renderCellContent = (field: any, item: any) => {
     if (field.type === 'date' && item[field.name]) {
