@@ -58,6 +58,18 @@ const AverageSales = ({ total, days }: { total: any, days:any }) => {
   );
 };
 
+const TotalProfits = ({ profits, days }: { profits: number, days: any }) => {
+  let daysNo = utils.getLasDays(days);
+  return (
+    <div className="w-full sm:w-1/4 p-4 text-center bg-white dark:bg-gray-800 shadow-md dark:shadow-inner rounded-lg">
+      <p className="text-sm text-gray-400 dark:text-gray-500">Total Profits</p>
+      <h2 className="text-4xl font-bold text-black dark:text-white">{`KES ${new Intl.NumberFormat('en-KE').format(profits)}`}</h2>
+      <p className="text-sm text-green-500">+12.5%</p>
+      <p className="text-xs text-gray-400 dark:text-gray-500">{`vs previous ${daysNo} days`}</p>
+    </div>
+  );
+};
+
 const GrowthRate = ({ days, growthData }: { days:any, growthData: any }) => {
   let daysNo = utils.getLasDays(days);
   const growthPercentage = growthData?.growthPercentage || 0;
@@ -140,6 +152,7 @@ const Dashboard: React.FC = () => {
   const [salesData, setSalesData] = useState<any>([]);
   const [productsData, setProductsData] = useState<any>([]);
   const [totalSales, setTotalSales] = useState(0);
+  const [totalProfits, setTotalProfits] = useState(0);
   const [totalSalesAnalytics, setTotalSalesAnalytics] = useState<any>([]);
   const [salesGrowth, setSalesGrowth] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -253,6 +266,19 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  const fetchTotalProfits = async () => {
+    try {
+      const url = `${utils.baseUrl}/api/sales/profits`;
+      const response = await axios.post(url, {
+        filters,
+        headers: { 'Content-Type': 'application/json' },
+      });
+      setTotalProfits(response?.data?.data[0]?.total || 0);
+    } catch (error) {
+      enqueueSnackbar("Total Profits Loading Failed. Please try again.", { variant: "error" });
+    }
+  };
+
   const fetchProductsData = async () => {
     setLoading(true);
     const url =  `${utils.baseUrl}/api/products/list`
@@ -271,7 +297,8 @@ const Dashboard: React.FC = () => {
         fetchTotalSales(), 
         fetchSalesProductsAnalytics(), 
         fetchProductsData(),
-        fetchSalesGrowth()
+        fetchSalesGrowth(),
+        fetchTotalProfits()
       ]);
       setLoading(false);
     };
@@ -371,8 +398,9 @@ const Dashboard: React.FC = () => {
       </Grid>
 
       <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
-        {TotalSales({ total: totalSales, days: dateRange  })}
-        {SalesPerPeriod({ salesData, days: dateRange  })}
+        {TotalSales({ total: totalSales, days: dateRange })}
+        {SalesPerPeriod({ salesData, days: dateRange })}
+        {TotalProfits({ profits: totalProfits, days: dateRange })}
         {AverageSales({ total: totalSales, days: dateRange })}
         {GrowthRate({ days: dateRange, growthData: salesGrowth })}
       </div>
