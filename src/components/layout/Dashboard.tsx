@@ -109,11 +109,26 @@ const Top5ProductsSales = ({ data, seriesData }: { data: any, seriesData: ChartD
 const TopSellingProductsChart = ({ data, seriesData }: { data: any, seriesData: ChartData[] }) => {
   return (
     <div className="w-full mt-6">
-      <h3 className="text-lg font-semibold mb-4 text-black dark:text-white">Top 5 Products Sales</h3>
+      <h3 className="text-lg font-semibold mb-4 text-black dark:text-white">Top 10 Products Sales</h3>
       <ChartComponent
         type="bar"
         data={data}
-        title="Top 5 Products Sales"
+        title="Top 10 Products Sales"
+        yLabel="Total Sales (KES)"
+        seriesData={seriesData}
+      />
+    </div>
+  );
+};
+
+const BottomSellingProductsChart = ({ data, seriesData }: { data: any, seriesData: ChartData[] }) => {
+  return (
+    <div className="w-full mt-6">
+      <h3 className="text-lg font-semibold mb-4 text-black dark:text-white">Bottom 10 Products Sales</h3>
+      <ChartComponent
+        type="bar"
+        data={data}
+        title="Bottom 10 Products Sales"
         yLabel="Total Sales (KES)"
         seriesData={seriesData}
       />
@@ -274,19 +289,34 @@ const Dashboard: React.FC = () => {
     }));
   };
 
-  const prepareBarChartData = (data: any[]): ChartData[] => {
+  const prepareBarChartData = (data: any[]): { top10: ChartData[], bottom10: ChartData[] } => {
     if (!Array.isArray(data) || data.length === 0) {
-      return [];
+      return { top10: [], bottom10: [] };
     }
     const sortedData = data.map(item => ({
       ...item,
-      totalsales: Number(item.totalsales)
-    })).sort((a, b) => b.totalsales - a.totalsales).slice(0, 5);
-  
-    return sortedData.map(item => ({
-      name: item.name,
-      y: item.totalsales
+      totalsales: Number(item.totalsales || 0)
     }));
+
+    // Get top 10
+    const top10 = [...sortedData]
+      .sort((a, b) => b.totalsales - a.totalsales)
+      .slice(0, 10)
+      .map(item => ({
+        name: item.name,
+        y: item.totalsales
+      }));
+
+    // Get bottom 10
+    const bottom10 = [...sortedData]
+      .sort((a, b) => a.totalsales - b.totalsales)
+      .slice(0, 10)
+      .map(item => ({
+        name: item.name,
+        y: item.totalsales
+      }));
+
+    return { top10, bottom10 };
   };
 
   const preparePieChartData = (data: any[]): ChartData[] => {
@@ -302,7 +332,7 @@ const Dashboard: React.FC = () => {
   
 
   const lineChartData = prepareLineChartData(salesData);
-  const barChartData = prepareBarChartData(totalSalesAnalytics?.data);
+  const { top10: barChartDataTop10, bottom10: barChartDataBottom10 } = prepareBarChartData(totalSalesAnalytics?.data);
   const pieChartData = preparePieChartData(totalSalesAnalytics?.data);
 
   return (
@@ -354,8 +384,11 @@ const Dashboard: React.FC = () => {
         <div className="w-full">
           <SalesGrowthChart data={salesData} seriesData={lineChartData} />
         </div>
-        <div className="w-full lg:col-span-2">
-          <TopSellingProductsChart data={productsData} seriesData={barChartData} />
+        <div className="w-full">
+          <TopSellingProductsChart data={productsData} seriesData={barChartDataTop10} />
+        </div>
+        <div className="w-full">
+          <BottomSellingProductsChart data={productsData} seriesData={barChartDataBottom10} />
         </div>
       </div>
     </div>
