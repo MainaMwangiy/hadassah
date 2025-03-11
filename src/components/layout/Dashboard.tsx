@@ -58,6 +58,18 @@ const AverageSales = ({ total, days }: { total: any, days:any }) => {
   );
 };
 
+const TotalProfits = ({ profits, days }: { profits: number, days: any }) => {
+  let daysNo = utils.getLasDays(days);
+  return (
+    <div className="w-full sm:w-1/4 p-4 text-center bg-white dark:bg-gray-800 shadow-md dark:shadow-inner rounded-lg">
+      <p className="text-sm text-gray-400 dark:text-gray-500">Total Profits</p>
+      <h2 className="text-4xl font-bold text-black dark:text-white">{`KES ${new Intl.NumberFormat('en-KE').format(profits)}`}</h2>
+      <p className="text-sm text-green-500">+12.5%</p>
+      <p className="text-xs text-gray-400 dark:text-gray-500">{`vs previous ${daysNo} days`}</p>
+    </div>
+  );
+};
+
 const GrowthRate = ({ days, growthData }: { days:any, growthData: any }) => {
   let daysNo = utils.getLasDays(days);
   const growthPercentage = growthData?.growthPercentage || 0;
@@ -109,11 +121,26 @@ const Top5ProductsSales = ({ data, seriesData }: { data: any, seriesData: ChartD
 const TopSellingProductsChart = ({ data, seriesData }: { data: any, seriesData: ChartData[] }) => {
   return (
     <div className="w-full mt-6">
-      <h3 className="text-lg font-semibold mb-4 text-black dark:text-white">Top 5 Products Sales</h3>
+      <h3 className="text-lg font-semibold mb-4 text-black dark:text-white">Top 10 Products Sales</h3>
       <ChartComponent
         type="bar"
         data={data}
-        title="Top 5 Products Sales"
+        title="Top 10 Products Sales"
+        yLabel="Total Sales (KES)"
+        seriesData={seriesData}
+      />
+    </div>
+  );
+};
+
+const BottomSellingProductsChart = ({ data, seriesData }: { data: any, seriesData: ChartData[] }) => {
+  return (
+    <div className="w-full mt-6">
+      <h3 className="text-lg font-semibold mb-4 text-black dark:text-white">Bottom 10 Products Sales</h3>
+      <ChartComponent
+        type="bar"
+        data={data}
+        title="Bottom 10 Products Sales"
         yLabel="Total Sales (KES)"
         seriesData={seriesData}
       />
@@ -125,6 +152,7 @@ const Dashboard: React.FC = () => {
   const [salesData, setSalesData] = useState<any>([]);
   const [productsData, setProductsData] = useState<any>([]);
   const [totalSales, setTotalSales] = useState(0);
+  const [totalProfits, setTotalProfits] = useState(0);
   const [totalSalesAnalytics, setTotalSalesAnalytics] = useState<any>([]);
   const [salesGrowth, setSalesGrowth] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -238,6 +266,19 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  const fetchTotalProfits = async () => {
+    try {
+      const url = `${utils.baseUrl}/api/sales/profits`;
+      const response = await axios.post(url, {
+        filters,
+        headers: { 'Content-Type': 'application/json' },
+      });
+      setTotalProfits(response?.data?.data[0]?.total || 0);
+    } catch (error) {
+      enqueueSnackbar("Total Profits Loading Failed. Please try again.", { variant: "error" });
+    }
+  };
+
   const fetchProductsData = async () => {
     setLoading(true);
     const url =  `${utils.baseUrl}/api/products/list`
@@ -256,7 +297,8 @@ const Dashboard: React.FC = () => {
         fetchTotalSales(), 
         fetchSalesProductsAnalytics(), 
         fetchProductsData(),
-        fetchSalesGrowth()
+        fetchSalesGrowth(),
+        fetchTotalProfits()
       ]);
       setLoading(false);
     };
@@ -274,19 +316,34 @@ const Dashboard: React.FC = () => {
     }));
   };
 
-  const prepareBarChartData = (data: any[]): ChartData[] => {
+  const prepareBarChartData = (data: any[]): { top10: ChartData[], bottom10: ChartData[] } => {
     if (!Array.isArray(data) || data.length === 0) {
-      return [];
+      return { top10: [], bottom10: [] };
     }
     const sortedData = data.map(item => ({
       ...item,
-      totalsales: Number(item.totalsales)
-    })).sort((a, b) => b.totalsales - a.totalsales).slice(0, 5);
-  
-    return sortedData.map(item => ({
-      name: item.name,
-      y: item.totalsales
+      totalsales: Number(item.totalsales || 0)
     }));
+
+    // Get top 10
+    const top10 = [...sortedData]
+      .sort((a, b) => b.totalsales - a.totalsales)
+      .slice(0, 10)
+      .map(item => ({
+        name: item.name,
+        y: item.totalsales
+      }));
+
+    // Get bottom 10
+    const bottom10 = [...sortedData]
+      .sort((a, b) => a.totalsales - b.totalsales)
+      .slice(0, 10)
+      .map(item => ({
+        name: item.name,
+        y: item.totalsales
+      }));
+
+    return { top10, bottom10 };
   };
 
   const preparePieChartData = (data: any[]): ChartData[] => {
@@ -302,7 +359,7 @@ const Dashboard: React.FC = () => {
   
 
   const lineChartData = prepareLineChartData(salesData);
-  const barChartData = prepareBarChartData(totalSalesAnalytics?.data);
+  const { top10: barChartDataTop10, bottom10: barChartDataBottom10 } = prepareBarChartData(totalSalesAnalytics?.data);
   const pieChartData = preparePieChartData(totalSalesAnalytics?.data);
 
   return (
@@ -341,8 +398,9 @@ const Dashboard: React.FC = () => {
       </Grid>
 
       <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
-        {TotalSales({ total: totalSales, days: dateRange  })}
-        {SalesPerPeriod({ salesData, days: dateRange  })}
+        {TotalSales({ total: totalSales, days: dateRange })}
+        {SalesPerPeriod({ salesData, days: dateRange })}
+        {TotalProfits({ profits: totalProfits, days: dateRange })}
         {AverageSales({ total: totalSales, days: dateRange })}
         {GrowthRate({ days: dateRange, growthData: salesGrowth })}
       </div>
@@ -354,8 +412,11 @@ const Dashboard: React.FC = () => {
         <div className="w-full">
           <SalesGrowthChart data={salesData} seriesData={lineChartData} />
         </div>
-        <div className="w-full lg:col-span-2">
-          <TopSellingProductsChart data={productsData} seriesData={barChartData} />
+        <div className="w-full">
+          <TopSellingProductsChart data={productsData} seriesData={barChartDataTop10} />
+        </div>
+        <div className="w-full">
+          <BottomSellingProductsChart data={productsData} seriesData={barChartDataBottom10} />
         </div>
       </div>
     </div>
