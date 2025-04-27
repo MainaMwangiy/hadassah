@@ -19,31 +19,35 @@ interface ChartData {
   y: number;
 }
 
-const TotalSales = ({ total, days }: { total: any, days:any }) => {
+const TotalSales = ({ total, days, percentageChange }: { total: number, days: any, percentageChange: number }) => {
   let daysNo = utils.getLasDays(days);
   return (
     <div className="w-full sm:w-1/4 p-4 text-center bg-white dark:bg-gray-800 shadow-md dark:shadow-inner rounded-lg">
       <p className="text-sm text-gray-400 dark:text-gray-500">Total Sales Amount</p>
       <h2 className="text-4xl font-bold text-black dark:text-white">{`KES ${new Intl.NumberFormat('en-KE').format(total)}`}</h2>
-      <p className="text-sm text-green-500">+20%</p>
+      <p className={`text-sm ${percentageChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+        {percentageChange >= 0 ? '+' : ''}{percentageChange.toFixed(2)}%
+      </p>
       <p className="text-xs text-gray-400 dark:text-gray-500">{`vs previous ${daysNo} days`}</p>
     </div>
   );
 };
 
-const SalesPerPeriod = ({ salesData, days }: { salesData: any, days:any }) => {
+const SalesPerPeriod = ({ salesCount, days, percentageChange }: { salesCount: number, days: any, percentageChange: number }) => {
   let daysNo = utils.getLasDays(days);
   return (
     <div className="w-full sm:w-1/4 p-4 text-center bg-white dark:bg-gray-800 shadow-md dark:shadow-inner rounded-lg">
       <p className="text-sm text-gray-400 dark:text-gray-500">{`Total Sales Count in ${daysNo} Last Days`}</p>
-      <h2 className="text-4xl font-bold text-black dark:text-white">{salesData.length || 0}</h2>
-      <p className="text-sm text-green-500">+15</p>
+      <h2 className="text-4xl font-bold text-black dark:text-white">{salesCount}</h2>
+      <p className={`text-sm ${percentageChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+        {percentageChange >= 0 ? '+' : ''}{percentageChange.toFixed(2)}%
+      </p>
       <p className="text-xs text-gray-400 dark:text-gray-500">{`vs previous ${daysNo} days`}</p>
     </div>
   );
 };
 
-const AverageSales = ({ total, days }: { total: any, days:any }) => {
+const AverageSales = ({ total, days, percentageChange }: { total: number, days: any, percentageChange: number }) => {
   let daysNo = utils.getLasDays(days);
   const averageSales = daysNo ? (total / daysNo) : 'N/A';
   return (
@@ -52,19 +56,23 @@ const AverageSales = ({ total, days }: { total: any, days:any }) => {
       <h2 className="text-4xl font-bold text-black dark:text-white">
         {typeof averageSales === 'number' ? averageSales.toFixed(2) : averageSales}
       </h2>
-      <p className="text-sm text-green-500">+7.3%</p>
+      <p className={`text-sm ${percentageChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+        {percentageChange >= 0 ? '+' : ''}{percentageChange.toFixed(2)}%
+      </p>
       <p className="text-xs text-gray-400 dark:text-gray-500">{`vs previous ${daysNo} days`}</p>
     </div>
   );
 };
 
-const TotalProfits = ({ profits, days }: { profits: number, days: any }) => {
+const TotalProfits = ({ profits, days, percentageChange }: { profits: number, days: any, percentageChange: number }) => {
   let daysNo = utils.getLasDays(days);
   return (
     <div className="w-full sm:w-1/4 p-4 text-center bg-white dark:bg-gray-800 shadow-md dark:shadow-inner rounded-lg">
       <p className="text-sm text-gray-400 dark:text-gray-500">Total Profits</p>
       <h2 className="text-4xl font-bold text-black dark:text-white">{`KES ${new Intl.NumberFormat('en-KE').format(profits)}`}</h2>
-      <p className="text-sm text-green-500">+12.5%</p>
+      <p className={`text-sm ${percentageChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+        {percentageChange >= 0 ? '+' : ''}{percentageChange.toFixed(2)}%
+      </p>
       <p className="text-xs text-gray-400 dark:text-gray-500">{`vs previous ${daysNo} days`}</p>
     </div>
   );
@@ -163,6 +171,11 @@ const Dashboard: React.FC = () => {
     startDate: new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0], 
     endDate: new Date().toISOString().split('T')[0]
   });
+  const [salesAnalytics, setSalesAnalytics] = useState<any>({
+    currentPeriod: { totalSales: 0, salesCount: 0, totalProfits: 0 },
+    previousPeriod: { totalSales: 0, salesCount: 0, totalProfits: 0 },
+    percentageChanges: { salesAmount: 0, salesCount: 0, profits: 0 }
+  });
   
 
   const handleDateRangeChange = (event: SelectChangeEvent<string>) => {
@@ -208,7 +221,7 @@ const Dashboard: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
       });
 
-      setSalesData(response.data.data);
+      setSalesAnalytics(response.data.data);
     } catch (error) {
       enqueueSnackbar("Sales Data Loading Failed. Please try again.", { variant: "error" });
     }
@@ -362,6 +375,13 @@ const Dashboard: React.FC = () => {
   const { top10: barChartDataTop10, bottom10: barChartDataBottom10 } = prepareBarChartData(totalSalesAnalytics?.data);
   const pieChartData = preparePieChartData(totalSalesAnalytics?.data);
 
+  // Calculate average sales percentage change
+  const calculateAverageSalesPercentage = () => {
+    const currentAverage = salesAnalytics.currentPeriod.totalSales / utils.getLasDays(dateRange);
+    const previousAverage = salesAnalytics.previousPeriod.totalSales / utils.getLasDays(dateRange);
+    return previousAverage === 0 ? 0 : ((currentAverage - previousAverage) / previousAverage) * 100;
+  };
+
   return (
     <div className="space-y-4 p-2 sm:p-4">
       <Grid container spacing={3}>
@@ -398,10 +418,26 @@ const Dashboard: React.FC = () => {
       </Grid>
 
       <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
-        {TotalSales({ total: totalSales, days: dateRange })}
-        {SalesPerPeriod({ salesData, days: dateRange })}
-        {TotalProfits({ profits: totalProfits, days: dateRange })}
-        {AverageSales({ total: totalSales, days: dateRange })}
+        {TotalSales({ 
+          total: salesAnalytics.currentPeriod.totalSales, 
+          days: dateRange,
+          percentageChange: salesAnalytics.percentageChanges.salesAmount 
+        })}
+        {SalesPerPeriod({ 
+          salesCount: salesAnalytics.currentPeriod.salesCount, 
+          days: dateRange,
+          percentageChange: salesAnalytics.percentageChanges.salesCount 
+        })}
+        {TotalProfits({ 
+          profits: salesAnalytics.currentPeriod.totalProfits, 
+          days: dateRange,
+          percentageChange: salesAnalytics.percentageChanges.profits 
+        })}
+        {AverageSales({ 
+          total: salesAnalytics.currentPeriod.totalSales, 
+          days: dateRange,
+          percentageChange: calculateAverageSalesPercentage()
+        })}
         {GrowthRate({ days: dateRange, growthData: salesGrowth })}
       </div>
 
