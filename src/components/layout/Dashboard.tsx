@@ -310,6 +310,9 @@ const Dashboard: React.FC = () => {
   }
 
   const prepareLineChartData = (data: any[]): ChartData[] => {
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      return [];
+    }
     return data.map(item => ({
       name: item.createdon, 
       y: Number(item.totalprice) 
