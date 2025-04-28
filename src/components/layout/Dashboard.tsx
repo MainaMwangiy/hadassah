@@ -7,43 +7,40 @@ import utils from "../../utils";
 import { useApi } from "../../hooks/Apis";
 import Loader from "../../hooks/Loader";
 
-interface SalesData {
-  totalsalescount: string;
-  productid: number;
-  name: string;
-  totalsales: string;
-}
-
 interface ChartData {
   name: string;
   y: number;
 }
 
-const TotalSales = ({ total, days }: { total: any, days:any }) => {
+const TotalSales = ({ total, days, percentageChange }: { total: number, days: any, percentageChange: number }) => {
   let daysNo = utils.getLasDays(days);
   return (
     <div className="w-full sm:w-1/4 p-4 text-center bg-white dark:bg-gray-800 shadow-md dark:shadow-inner rounded-lg">
       <p className="text-sm text-gray-400 dark:text-gray-500">Total Sales Amount</p>
       <h2 className="text-4xl font-bold text-black dark:text-white">{`KES ${new Intl.NumberFormat('en-KE').format(total)}`}</h2>
-      <p className="text-sm text-green-500">+20%</p>
+      <p className={`text-sm ${percentageChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+        {percentageChange >= 0 ? '+' : ''}{percentageChange.toFixed(2)}%
+      </p>
       <p className="text-xs text-gray-400 dark:text-gray-500">{`vs previous ${daysNo} days`}</p>
     </div>
   );
 };
 
-const SalesPerPeriod = ({ salesData, days }: { salesData: any, days:any }) => {
+const SalesPerPeriod = ({ salesCount, days, percentageChange }: { salesCount: number, days: any, percentageChange: number }) => {
   let daysNo = utils.getLasDays(days);
   return (
     <div className="w-full sm:w-1/4 p-4 text-center bg-white dark:bg-gray-800 shadow-md dark:shadow-inner rounded-lg">
       <p className="text-sm text-gray-400 dark:text-gray-500">{`Total Sales Count in ${daysNo} Last Days`}</p>
-      <h2 className="text-4xl font-bold text-black dark:text-white">{salesData.length || 0}</h2>
-      <p className="text-sm text-green-500">+15</p>
+      <h2 className="text-4xl font-bold text-black dark:text-white">{salesCount}</h2>
+      <p className={`text-sm ${percentageChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+        {percentageChange >= 0 ? '+' : ''}{percentageChange.toFixed(2)}%
+      </p>
       <p className="text-xs text-gray-400 dark:text-gray-500">{`vs previous ${daysNo} days`}</p>
     </div>
   );
 };
 
-const AverageSales = ({ total, days }: { total: any, days:any }) => {
+const AverageSales = ({ total, days, percentageChange }: { total: number, days: any, percentageChange: number }) => {
   let daysNo = utils.getLasDays(days);
   const averageSales = daysNo ? (total / daysNo) : 'N/A';
   return (
@@ -52,19 +49,23 @@ const AverageSales = ({ total, days }: { total: any, days:any }) => {
       <h2 className="text-4xl font-bold text-black dark:text-white">
         {typeof averageSales === 'number' ? averageSales.toFixed(2) : averageSales}
       </h2>
-      <p className="text-sm text-green-500">+7.3%</p>
+      <p className={`text-sm ${percentageChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+        {percentageChange >= 0 ? '+' : ''}{percentageChange.toFixed(2)}%
+      </p>
       <p className="text-xs text-gray-400 dark:text-gray-500">{`vs previous ${daysNo} days`}</p>
     </div>
   );
 };
 
-const TotalProfits = ({ profits, days }: { profits: number, days: any }) => {
+const TotalProfits = ({ profits, days, percentageChange }: { profits: number, days: any, percentageChange: number }) => {
   let daysNo = utils.getLasDays(days);
   return (
     <div className="w-full sm:w-1/4 p-4 text-center bg-white dark:bg-gray-800 shadow-md dark:shadow-inner rounded-lg">
       <p className="text-sm text-gray-400 dark:text-gray-500">Total Profits</p>
       <h2 className="text-4xl font-bold text-black dark:text-white">{`KES ${new Intl.NumberFormat('en-KE').format(profits)}`}</h2>
-      <p className="text-sm text-green-500">+12.5%</p>
+      <p className={`text-sm ${percentageChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+        {percentageChange >= 0 ? '+' : ''}{percentageChange.toFixed(2)}%
+      </p>
       <p className="text-xs text-gray-400 dark:text-gray-500">{`vs previous ${daysNo} days`}</p>
     </div>
   );
@@ -151,8 +152,6 @@ const BottomSellingProductsChart = ({ data, seriesData }: { data: any, seriesDat
 const Dashboard: React.FC = () => {
   const [salesData, setSalesData] = useState<any>([]);
   const [productsData, setProductsData] = useState<any>([]);
-  const [totalSales, setTotalSales] = useState(0);
-  const [totalProfits, setTotalProfits] = useState(0);
   const [totalSalesAnalytics, setTotalSalesAnalytics] = useState<any>([]);
   const [salesGrowth, setSalesGrowth] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -162,6 +161,11 @@ const Dashboard: React.FC = () => {
   const [filters, setFilters] = useState<{ startDate: string; endDate: string }>({
     startDate: new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0], 
     endDate: new Date().toISOString().split('T')[0]
+  });
+  const [salesAnalytics, setSalesAnalytics] = useState<any>({
+    currentPeriod: { totalSales: 0, salesCount: 0, totalProfits: 0 },
+    previousPeriod: { totalSales: 0, salesCount: 0, totalProfits: 0 },
+    percentageChanges: { salesAmount: 0, salesCount: 0, profits: 0 }
   });
   
 
@@ -200,9 +204,9 @@ const Dashboard: React.FC = () => {
     };
   };
 
-  const fetchData = async () => {
+  const fetchDailySalesData = async () => {
     try {
-      const url = `${utils.baseUrl}/api/sales/analytics`;
+      const url = `${utils.baseUrl}/api/sales/analytics/total`;
       const response = await axios.post(url, {
         filters,
         headers: { 'Content-Type': 'application/json' },
@@ -210,7 +214,25 @@ const Dashboard: React.FC = () => {
 
       setSalesData(response.data.data);
     } catch (error) {
-      enqueueSnackbar("Sales Data Loading Failed. Please try again.", { variant: "error" });
+      console.error('Error in fetchDailySalesData:', error);
+      enqueueSnackbar("Daily Sales Data Loading Failed. Please try again.", { variant: "error" });
+    }
+  };
+
+  const fetchSalesAnalytics = async () => {
+    try {
+      const url = `${utils.baseUrl}/api/sales/analytics`;
+      const response = await axios.post(url, {
+        filters,
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (response.data.success && response.data.data) {
+        setSalesAnalytics(response.data.data);
+      }
+    } catch (error) {
+      console.error('Error in fetchSalesAnalytics:', error);
+      enqueueSnackbar("Sales Analytics Loading Failed. Please try again.", { variant: "error" });
     }
   };
 
@@ -224,19 +246,6 @@ const Dashboard: React.FC = () => {
       setProductsData(response.data.data);
     } catch (error) {
       enqueueSnackbar("Products Data Loading Failed. Please try again.", { variant: "error" });
-    }
-  };
-
-  const fetchTotalSales = async () => {
-    try {
-      const url = `${utils.baseUrl}/api/sales/total`;
-      const response = await axios.post(url, {
-        filters,
-        headers: { 'Content-Type': 'application/json' },
-      });
-      setTotalSales(response?.data?.data[0].total);
-    } catch (error) {
-      enqueueSnackbar("Total Sales Loading Failed. Please try again.", { variant: "error" });
     }
   };
 
@@ -266,19 +275,6 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const fetchTotalProfits = async () => {
-    try {
-      const url = `${utils.baseUrl}/api/sales/profits`;
-      const response = await axios.post(url, {
-        filters,
-        headers: { 'Content-Type': 'application/json' },
-      });
-      setTotalProfits(response?.data?.data[0]?.total || 0);
-    } catch (error) {
-      enqueueSnackbar("Total Profits Loading Failed. Please try again.", { variant: "error" });
-    }
-  };
-
   const fetchProductsData = async () => {
     setLoading(true);
     const url =  `${utils.baseUrl}/api/products/list`
@@ -292,13 +288,12 @@ const Dashboard: React.FC = () => {
     const fetchAllData = async () => {
       setLoading(true);
       await Promise.all([
-        fetchData(), 
+        fetchDailySalesData(), 
+        fetchSalesAnalytics(),
         fetchHarvestsData(), 
-        fetchTotalSales(), 
         fetchSalesProductsAnalytics(), 
         fetchProductsData(),
-        fetchSalesGrowth(),
-        fetchTotalProfits()
+        fetchSalesGrowth()
       ]);
       setLoading(false);
     };
@@ -310,6 +305,9 @@ const Dashboard: React.FC = () => {
   }
 
   const prepareLineChartData = (data: any[]): ChartData[] => {
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      return [];
+    }
     return data.map(item => ({
       name: item.createdon, 
       y: Number(item.totalprice) 
@@ -362,6 +360,12 @@ const Dashboard: React.FC = () => {
   const { top10: barChartDataTop10, bottom10: barChartDataBottom10 } = prepareBarChartData(totalSalesAnalytics?.data);
   const pieChartData = preparePieChartData(totalSalesAnalytics?.data);
 
+  const calculateAverageSalesPercentage = () => {
+    const currentAverage = salesAnalytics.currentPeriod.totalSales / utils.getLasDays(dateRange);
+    const previousAverage = salesAnalytics.previousPeriod.totalSales / utils.getLasDays(dateRange);
+    return previousAverage === 0 ? 0 : ((currentAverage - previousAverage) / previousAverage) * 100;
+  };
+
   return (
     <div className="space-y-4 p-2 sm:p-4">
       <Grid container spacing={3}>
@@ -398,10 +402,26 @@ const Dashboard: React.FC = () => {
       </Grid>
 
       <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
-        {TotalSales({ total: totalSales, days: dateRange })}
-        {SalesPerPeriod({ salesData, days: dateRange })}
-        {TotalProfits({ profits: totalProfits, days: dateRange })}
-        {AverageSales({ total: totalSales, days: dateRange })}
+        {TotalSales({ 
+          total: salesAnalytics.currentPeriod.totalSales, 
+          days: dateRange,
+          percentageChange: salesAnalytics.percentageChanges.salesAmount 
+        })}
+        {SalesPerPeriod({ 
+          salesCount: salesAnalytics.currentPeriod.salesCount, 
+          days: dateRange,
+          percentageChange: salesAnalytics.percentageChanges.salesCount 
+        })}
+        {TotalProfits({ 
+          profits: salesAnalytics.currentPeriod.totalProfits, 
+          days: dateRange,
+          percentageChange: salesAnalytics.percentageChanges.profits 
+        })}
+        {AverageSales({ 
+          total: salesAnalytics.currentPeriod.totalSales, 
+          days: dateRange,
+          percentageChange: calculateAverageSalesPercentage()
+        })}
         {GrowthRate({ days: dateRange, growthData: salesGrowth })}
       </div>
 
@@ -410,7 +430,14 @@ const Dashboard: React.FC = () => {
           <Top5ProductsSales data={totalSalesAnalytics} seriesData={pieChartData} />
         </div>
         <div className="w-full">
-          <SalesGrowthChart data={salesData} seriesData={lineChartData} />
+          {lineChartData.length > 0 ? (
+            <SalesGrowthChart data={salesData} seriesData={lineChartData} />
+          ) : (
+            <div className="w-full mt-6 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+              <h3 className="text-lg font-semibold mb-4 text-black dark:text-white">Sales Growth Over Time</h3>
+              <p className="text-gray-500 dark:text-gray-400 text-center py-8">No sales data available for the selected period.</p>
+            </div>
+          )}
         </div>
         <div className="w-full">
           <TopSellingProductsChart data={productsData} seriesData={barChartDataTop10} />

@@ -21,16 +21,16 @@ interface ChartComponentProps {
 const ChartComponent: React.FC<ChartComponentProps> = ({ type, data, title, yLabel, xLabel, seriesData }) => {
     let chartData: ChartData[] = [];
   
-    if (type === 'pie') {
-      chartData = seriesData;
-    } else if (type === 'bar') {
-      chartData = seriesData;
+    if (type === 'pie' || type === 'bar') {
+      chartData = seriesData || [];
     } else {
-      chartData = data.map(item => ({
-        name: item.name,
-        y: Number(item.sellingprice || item.amount || item.amountsold),
-        category: dayjs(item.createdon).format('DD-MM-YYYY'),
-      }));
+      chartData = Array.isArray(data) 
+        ? data.map(item => ({
+            name: item.name,
+            y: Number(item.sellingprice || item.amount || item.amountsold),
+            category: dayjs(item.createdon).format('DD-MM-YYYY'),
+          }))
+        : [];
     }
   
     const options: Options = {
