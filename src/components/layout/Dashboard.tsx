@@ -1,11 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { FormControl, Grid, InputLabel, MenuItem, Select, SelectChangeEvent, useTheme } from "@mui/material";
+import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DateRange } from '@mui/x-date-pickers-pro';
 import ChartComponent from "../Charts/Charts";
 import axios from "axios";
 import { useSnackbar } from "notistack";
 import utils from "../../utils";
 import { useApi } from "../../hooks/Apis";
 import Loader from "../../hooks/Loader";
+import dayjs, { Dayjs } from 'dayjs';
 
 interface ChartData {
   name: string;
@@ -71,10 +76,10 @@ const TotalProfits = ({ profits, days, percentageChange }: { profits: number, da
   );
 };
 
-const GrowthRate = ({ days, growthData }: { days:any, growthData: any }) => {
+const GrowthRate = ({ days, growthData }: { days: any, growthData: any }) => {
   let daysNo = utils.getLasDays(days);
   const growthPercentage = growthData?.growthPercentage || 0;
-  const previousGrowthPercentage = 0; // This could be calculated from historical data if needed
+  const previousGrowthPercentage = 0;
 
   return (
     <div className="w-full sm:w-1/4 p-4 text-center bg-white dark:bg-gray-800 shadow-md dark:shadow-inner rounded-lg">
@@ -102,7 +107,6 @@ const SalesGrowthChart = ({ data, seriesData }: { data: any, seriesData: ChartDa
     </div>
   );
 };
-
 
 const Top5ProductsSales = ({ data, seriesData }: { data: any, seriesData: ChartData[] }) => {
   return (
@@ -157,50 +161,71 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const { enqueueSnackbar } = useSnackbar();
   const { apiRequest } = useApi();
-  const [dateRange, setDateRange] = useState("Last7Days");
+  const [dateRange, setDateRange] = useState("last7days");
   const [filters, setFilters] = useState<{ startDate: string; endDate: string }>({
-    startDate: new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0], 
-    endDate: new Date().toISOString().split('T')[0]
+    startDate: dayjs().subtract(7, 'day').format('YYYY-MM-DD'),
+    endDate: dayjs().format('YYYY-MM-DD')
   });
+  const [openDatePicker, setOpenDatePicker] = useState(false);
+  const [customDateRange, setCustomDateRange] = useState<DateRange<Dayjs>>([null, null]);
   const [salesAnalytics, setSalesAnalytics] = useState<any>({
     currentPeriod: { totalSales: 0, salesCount: 0, totalProfits: 0 },
     previousPeriod: { totalSales: 0, salesCount: 0, totalProfits: 0 },
     percentageChanges: { salesAmount: 0, salesCount: 0, profits: 0 }
   });
-  
+
+  const dateRangeOptions = [
+    { value: 'last7days', label: 'Last 7 Days' },
+    { value: 'last1month', label: 'Last 1 Month' },
+    { value: 'last3months', label: 'Last 3 Months' },
+    { value: 'last6months', label: 'Last 6 Months' },
+    { value: 'last1year', label: 'Last 1 Year' },
+    { value: 'custom', label: 'Custom Range' }
+  ];
 
   const handleDateRangeChange = (event: SelectChangeEvent<string>) => {
     const selectedRange = event.target.value;
     setDateRange(selectedRange);
-    const { startDate, endDate } = calculateDateRange(selectedRange);
-    setFilters({ startDate, endDate });
+
+    if (selectedRange === 'custom') {
+      setOpenDatePicker(true);
+    } else {
+      setOpenDatePicker(false);
+      const { startDate, endDate } = calculateDateRange(selectedRange);
+      setFilters({ startDate, endDate });
+    }
+  };
+
+  const handleCustomDateChange = (newValue: DateRange<Dayjs>) => {
+    setCustomDateRange(newValue);
+    if (newValue[0] && newValue[1]) {
+      setFilters({
+        startDate: newValue[0].format('YYYY-MM-DD'),
+        endDate: newValue[1].format('YYYY-MM-DD')
+      });
+      setOpenDatePicker(false);
+    }
   };
 
   const calculateDateRange = (range: string) => {
-    const currentDate = new Date();
-    let startDate = new Date();
-    let endDate = currentDate;
+    const currentDate = dayjs();
+    let startDate = currentDate;
 
-    switch (range) {
-      case "Last7Days":
-        startDate.setDate(currentDate.getDate() - 7);
-        break;
-      case "Last14Days":
-        startDate.setDate(currentDate.getDate() - 14);
-        break;
-      case "Last30Days":
-        startDate.setDate(currentDate.getDate() - 30);
-        break;
-      case "Last90Days":
-        startDate.setDate(currentDate.getDate() - 90);
-        break;
-      default:
-        break;
+    const rangeCalculations: Record<string, () => Dayjs> = {
+      last7days: () => startDate.subtract(7, 'day'),
+      last1month: () => startDate.subtract(1, 'month'),
+      last3months: () => startDate.subtract(3, 'month'),
+      last6months: () => startDate.subtract(6, 'month'),
+      last1year: () => startDate.subtract(1, 'year')
+    };
+
+    if (rangeCalculations[range]) {
+      startDate = rangeCalculations[range]();
     }
 
     return {
-      startDate: startDate.toISOString().split("T")[0],
-      endDate: endDate.toISOString().split("T")[0],
+      startDate: startDate.format('YYYY-MM-DD'),
+      endDate: currentDate.format('YYYY-MM-DD')
     };
   };
 
@@ -277,10 +302,10 @@ const Dashboard: React.FC = () => {
 
   const fetchProductsData = async () => {
     setLoading(true);
-    const url =  `${utils.baseUrl}/api/products/list`
-    const tempPayload = {page:1, pageSize: 100};
+    const url = `${utils.baseUrl}/api/products/list`;
+    const tempPayload = { page: 1, pageSize: 100 };
     const response = await apiRequest({ method: "POST", url: url, data: tempPayload });
-    localStorage.setItem('products', JSON.stringify(response?.data))
+    localStorage.setItem('products', JSON.stringify(response?.data));
     setLoading(false);
   };
 
@@ -288,10 +313,10 @@ const Dashboard: React.FC = () => {
     const fetchAllData = async () => {
       setLoading(true);
       await Promise.all([
-        fetchDailySalesData(), 
+        fetchDailySalesData(),
         fetchSalesAnalytics(),
-        fetchHarvestsData(), 
-        fetchSalesProductsAnalytics(), 
+        fetchHarvestsData(),
+        fetchSalesProductsAnalytics(),
         fetchProductsData(),
         fetchSalesGrowth()
       ]);
@@ -301,7 +326,7 @@ const Dashboard: React.FC = () => {
   }, [filters]);
 
   if (loading) {
-    return <Loader /> ;
+    return <Loader />;
   }
 
   const prepareLineChartData = (data: any[]): ChartData[] => {
@@ -309,8 +334,8 @@ const Dashboard: React.FC = () => {
       return [];
     }
     return data.map(item => ({
-      name: item.createdon, 
-      y: Number(item.totalprice) 
+      name: item.createdon,
+      y: Number(item.totalprice)
     }));
   };
 
@@ -323,7 +348,6 @@ const Dashboard: React.FC = () => {
       totalsales: Number(item.totalsales || 0)
     }));
 
-    // Get top 10
     const top10 = [...sortedData]
       .sort((a, b) => b.totalsales - a.totalsales)
       .slice(0, 10)
@@ -332,7 +356,6 @@ const Dashboard: React.FC = () => {
         y: item.totalsales
       }));
 
-    // Get bottom 10
     const bottom10 = [...sortedData]
       .sort((a, b) => a.totalsales - b.totalsales)
       .slice(0, 10)
@@ -348,13 +371,12 @@ const Dashboard: React.FC = () => {
     if (!Array.isArray(data) || data.length === 0) {
       return [];
     }
-  
+
     return data.map(item => ({
       name: item.name,
       y: Number(item.totalsales)
     }));
   };
-  
 
   const lineChartData = prepareLineChartData(salesData);
   const { top10: barChartDataTop10, bottom10: barChartDataBottom10 } = prepareBarChartData(totalSalesAnalytics?.data);
@@ -368,57 +390,80 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-4 p-2 sm:p-4">
-      <Grid container spacing={3}>
-      <Grid item xs={12} sm={6} md={4}>
-          <FormControl 
-            variant="outlined" 
-            size="small" 
-            fullWidth
-            className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 border border-gray-300 dark:border-gray-700"
-          >
-            <InputLabel 
-              className="text-gray-900 dark:text-gray-200"
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <Grid container spacing={3}>
+          <Grid item xs={12} sm={6} md={4}>
+            <FormControl
+              variant="outlined"
+              size="small"
+              fullWidth
+              className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 border border-gray-300 dark:border-gray-700"
             >
-              Filter by Date Range
-            </InputLabel>
-            <Select
-              value={dateRange}
-              onChange={handleDateRangeChange}
-              label="Auto date range"
-              className="text-gray-900 dark:text-white bg-white dark:bg-gray-800"
-              MenuProps={{
-                PaperProps: {
-                  className: 'bg-white dark:bg-gray-800'
-                }
-              }}
-            >
-              <MenuItem value="Last7Days" className="text-gray-900 dark:text-white">Last 7 Days</MenuItem>
-              <MenuItem value="Last14Days" className="text-gray-900 dark:text-white">Last 14 Days</MenuItem>
-              <MenuItem value="Last30Days" className="text-gray-900 dark:text-white">Last 30 Days</MenuItem>
-              <MenuItem value="Last90Days" className="text-gray-900 dark:text-white">Last 90 Days</MenuItem>
-            </Select>
-          </FormControl>
+              <InputLabel className="text-gray-900 dark:text-gray-200">
+                Filter by Date Range
+              </InputLabel>
+              <Select
+                value={dateRange}
+                onChange={handleDateRangeChange}
+                label="Filter by Date Range"
+                className="text-gray-900 dark:text-white bg-white dark:bg-gray-800"
+                MenuProps={{
+                  PaperProps: {
+                    className: 'bg-white dark:bg-gray-800'
+                  }
+                }}
+              >
+                {dateRangeOptions.map(option => (
+                  <MenuItem
+                    key={option.value}
+                    value={option.value}
+                    className="text-gray-900 dark:text-white"
+                  >
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          {openDatePicker && (
+            <Grid item xs={12} sm={6} md={4}>
+              <DateRangePicker
+                open={openDatePicker}
+                onClose={() => setOpenDatePicker(false)}
+                value={customDateRange}
+                onChange={handleCustomDateChange}
+                slotProps={{
+                  textField: {
+                    variant: 'outlined',
+                    size: 'small',
+                    fullWidth: true,
+                    className: 'bg-white dark:bg-gray-800'
+                  }
+                }}
+              />
+            </Grid>
+          )}
         </Grid>
-      </Grid>
+      </LocalizationProvider>
 
       <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
-        {TotalSales({ 
-          total: salesAnalytics.currentPeriod.totalSales, 
+        {TotalSales({
+          total: salesAnalytics.currentPeriod.totalSales,
           days: dateRange,
-          percentageChange: salesAnalytics.percentageChanges.salesAmount 
+          percentageChange: salesAnalytics.percentageChanges.salesAmount
         })}
-        {SalesPerPeriod({ 
-          salesCount: salesAnalytics.currentPeriod.salesCount, 
+        {SalesPerPeriod({
+          salesCount: salesAnalytics.currentPeriod.salesCount,
           days: dateRange,
-          percentageChange: salesAnalytics.percentageChanges.salesCount 
+          percentageChange: salesAnalytics.percentageChanges.salesCount
         })}
-        {TotalProfits({ 
-          profits: salesAnalytics.currentPeriod.totalProfits, 
+        {TotalProfits({
+          profits: salesAnalytics.currentPeriod.totalProfits,
           days: dateRange,
-          percentageChange: salesAnalytics.percentageChanges.profits 
+          percentageChange: salesAnalytics.percentageChanges.profits
         })}
-        {AverageSales({ 
-          total: salesAnalytics.currentPeriod.totalSales, 
+        {AverageSales({
+          total: salesAnalytics.currentPeriod.totalSales,
           days: dateRange,
           percentageChange: calculateAverageSalesPercentage()
         })}
