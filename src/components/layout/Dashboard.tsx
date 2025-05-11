@@ -392,6 +392,7 @@ const Dashboard: React.FC = () => {
     <div className="space-y-4 p-2 sm:p-4">
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <Grid container spacing={3}>
+          {/* @ts-ignore */}
           <Grid item xs={12} sm={6} md={4}>
             <FormControl
               variant="outlined"
@@ -426,6 +427,7 @@ const Dashboard: React.FC = () => {
             </FormControl>
           </Grid>
           {openDatePicker && (
+            // @ts-ignore
             <Grid item xs={12} sm={6} md={4}>
               <DateRangePicker
                 open={openDatePicker}
