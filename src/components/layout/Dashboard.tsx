@@ -215,7 +215,6 @@ const Dashboard: React.FC = () => {
     const currentDate = dayjs();
     let startDate: Dayjs = currentDate;
     let endDate: Dayjs = currentDate;
-
     const option = utils.dateOptions.find(opt => opt.value === range);
     if (option && option.days) {
       startDate = currentDate.subtract(option.days, 'day');
@@ -223,7 +222,6 @@ const Dashboard: React.FC = () => {
       startDate = tempStartDate;
       endDate = tempEndDate;
     }
-
     return {
       startDate: startDate.format('YYYY-MM-DD'),
       endDate: endDate.format('YYYY-MM-DD')
@@ -236,6 +234,8 @@ const Dashboard: React.FC = () => {
       const { startDate, endDate } = calculateDateRange(option);
       setFilters({ startDate, endDate });
       setIsOpen(false);
+    } else {
+      return;
     }
   };
 
@@ -426,8 +426,17 @@ const Dashboard: React.FC = () => {
   const pieChartData = preparePieChartData(totalSalesAnalytics?.data);
 
   const calculateAverageSalesPercentage = () => {
-    const currentAverage = salesAnalytics.currentPeriod.totalSales / utils.getDaysCount(dateRange);
-    const previousAverage = salesAnalytics.previousPeriod.totalSales / utils.getDaysCount(dateRange);
+    let daysCount;
+    if (dateRange === 'Custom') {
+      daysCount = dayjs(filters.endDate).diff(dayjs(filters.startDate), 'day') + 1;
+    } else {
+      daysCount = utils.getDaysCount(dateRange);
+    }
+    if (!daysCount || daysCount <= 0) {
+      return 0;
+    }
+    const currentAverage = salesAnalytics.currentPeriod.totalSales / daysCount;
+    const previousAverage = salesAnalytics.previousPeriod.totalSales / daysCount;
     return previousAverage === 0 ? 0 : ((currentAverage - previousAverage) / previousAverage) * 100;
   };
 
