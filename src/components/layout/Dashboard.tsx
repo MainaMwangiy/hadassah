@@ -436,8 +436,8 @@ const Dashboard: React.FC = () => {
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <Grid container spacing={3} alignItems="center">
           {/* @ts-ignore */}
-          <Grid item xs={12} sm={6} md={4} lg={3} className="flex justify-end">
-            <div className="relative w-85 sm:w-auto">
+          <Grid item xs={12} sm={6} md={4} lg={3} className="flex justify-end min-w-[340px]">
+            <div className="relative w-full sm:w-auto">
               <DateRangeFilterButton
                 selectedOption={dateRange}
                 startDate={filters.startDate}
@@ -452,7 +452,7 @@ const Dashboard: React.FC = () => {
                     animation: isOpen ? 'fadeIn 150ms ease-out' : 'none',
                   }}
                 >
-                  <List component="nav" aria-label="date range options" className="p-0">
+                  <List component="nav" aria-label="date range options" className="p-0 min-w-[355px]">
                     {utils.dateOptions.map((option) => (
                       <React.Fragment key={option.value}>
                         <ListItemButton
@@ -461,7 +461,7 @@ const Dashboard: React.FC = () => {
                           className={`${dateRange === option.value
                             ? 'bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300'
                             : 'hover:bg-gray-100 dark:hover:bg-gray-700'
-                            } text-gray-700 dark:text-gray-200 px-4 py-2`}
+                            } text-gray-700 dark:text-gray-200 px-4 py-2 rounded-md`}
                         >
                           <ListItemText primary={option.label} />
                         </ListItemButton>
