@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { FormControl, Grid, InputLabel, MenuItem, Select, SelectChangeEvent, useTheme } from "@mui/material";
-import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
+import { FormControl, Grid, InputLabel, MenuItem, Select, SelectChangeEvent, Paper, List, ListItemButton, ListItemText, Collapse, Button, Box, Typography } from "@mui/material";
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DateRange } from '@mui/x-date-pickers-pro';
 import ChartComponent from "../Charts/Charts";
 import axios from "axios";
 import { useSnackbar } from "notistack";
@@ -153,6 +151,41 @@ const BottomSellingProductsChart = ({ data, seriesData }: { data: any, seriesDat
   );
 };
 
+const DateRangeFilterButton: React.FC<{
+  selectedOption: string;
+  startDate: string;
+  endDate: string;
+  isOpen: boolean;
+  onClick: () => void;
+}> = ({ selectedOption, startDate, endDate, isOpen, onClick }) => {
+  const displayText = selectedOption === 'custom'
+    ? `${dayjs(startDate).format('MMM D, YYYY')} - ${dayjs(endDate).format('MMM D, YYYY')}`
+    : selectedOption.replace('last', 'Last ').replace(/([A-Z])/g, ' $1').trim();
+
+  return (
+    <button
+      onClick={onClick}
+      className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      aria-expanded={isOpen}
+      aria-haspopup="true"
+    >
+      <svg className="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+      <span className="text-sm font-medium text-gray-700">{displayText}</span>
+      {isOpen ? (
+        <svg className="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7" />
+        </svg>
+      ) : (
+        <svg className="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      )}
+    </button>
+  );
+};
+
 const Dashboard: React.FC = () => {
   const [salesData, setSalesData] = useState<any>([]);
   const [productsData, setProductsData] = useState<any>([]);
@@ -166,67 +199,83 @@ const Dashboard: React.FC = () => {
     startDate: dayjs().subtract(7, 'day').format('YYYY-MM-DD'),
     endDate: dayjs().format('YYYY-MM-DD')
   });
-  const [openDatePicker, setOpenDatePicker] = useState(false);
-  const [customDateRange, setCustomDateRange] = useState<DateRange<Dayjs>>([null, null]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [tempStartDate, setTempStartDate] = useState<Dayjs | null>(null);
+  const [tempEndDate, setTempEndDate] = useState<Dayjs | null>(null);
+  const [error, setError] = useState<string>('');
   const [salesAnalytics, setSalesAnalytics] = useState<any>({
     currentPeriod: { totalSales: 0, salesCount: 0, totalProfits: 0 },
     previousPeriod: { totalSales: 0, salesCount: 0, totalProfits: 0 },
     percentageChanges: { salesAmount: 0, salesCount: 0, profits: 0 }
   });
 
-  const dateRangeOptions = [
-    { value: 'last7days', label: 'Last 7 Days' },
-    { value: 'last1month', label: 'Last 1 Month' },
-    { value: 'last3months', label: 'Last 3 Months' },
-    { value: 'last6months', label: 'Last 6 Months' },
-    { value: 'last1year', label: 'Last 1 Year' },
-    { value: 'custom', label: 'Custom Range' }
-  ];
+  const dateOptions = ['last7days', 'last1month', 'last3months', 'last1year', 'custom'];
 
-  const handleDateRangeChange = (event: SelectChangeEvent<string>) => {
-    const selectedRange = event.target.value;
-    setDateRange(selectedRange);
-
-    if (selectedRange === 'custom') {
-      setOpenDatePicker(true);
-    } else {
-      setOpenDatePicker(false);
-      const { startDate, endDate } = calculateDateRange(selectedRange);
-      setFilters({ startDate, endDate });
-    }
-  };
-
-  const handleCustomDateChange = (newValue: DateRange<Dayjs>) => {
-    setCustomDateRange(newValue);
-    if (newValue[0] && newValue[1]) {
-      setFilters({
-        startDate: newValue[0].format('YYYY-MM-DD'),
-        endDate: newValue[1].format('YYYY-MM-DD')
-      });
-      setOpenDatePicker(false);
-    }
-  };
-
-  const calculateDateRange = (range: string) => {
+  const calculateDateRange = (range: string): { startDate: string; endDate: string } => {
     const currentDate = dayjs();
-    let startDate = currentDate;
+    let startDate: Dayjs = currentDate;
+    let endDate: Dayjs = currentDate;
 
     const rangeCalculations: Record<string, () => Dayjs> = {
       last7days: () => startDate.subtract(7, 'day'),
       last1month: () => startDate.subtract(1, 'month'),
       last3months: () => startDate.subtract(3, 'month'),
-      last6months: () => startDate.subtract(6, 'month'),
       last1year: () => startDate.subtract(1, 'year')
     };
 
     if (rangeCalculations[range]) {
       startDate = rangeCalculations[range]();
+    } else if (range === 'custom' && tempStartDate && tempEndDate) {
+      startDate = tempStartDate;
+      endDate = tempEndDate;
     }
 
     return {
       startDate: startDate.format('YYYY-MM-DD'),
-      endDate: currentDate.format('YYYY-MM-DD')
+      endDate: endDate.format('YYYY-MM-DD')
     };
+  };
+
+  const handleOptionSelect = (option: string) => {
+    setDateRange(option);
+    if (option !== 'custom') {
+      const { startDate, endDate } = calculateDateRange(option);
+      setFilters({ startDate, endDate });
+      setIsOpen(false);
+    }
+  };
+
+  const handleCustomDateChange = (newStartDate: Dayjs | null, newEndDate: Dayjs | null) => {
+    setTempStartDate(newStartDate);
+    setTempEndDate(newEndDate);
+    if (newStartDate && newEndDate && newEndDate.isBefore(newStartDate)) {
+      setError('End date cannot be before start date');
+    } else {
+      setError('');
+    }
+  };
+
+  const handleApplyCustomDate = () => {
+    if (tempStartDate && tempEndDate) {
+      if (tempEndDate.isBefore(tempStartDate)) {
+        setError('End date cannot be before start date');
+        return;
+      }
+      const { startDate, endDate } = calculateDateRange('custom');
+      setFilters({ startDate, endDate });
+      setError('');
+      setIsOpen(false);
+    } else {
+      setError('Please select both start and end dates');
+    }
+  };
+
+  const toggleDropdown = () => {
+    setIsOpen(prev => !prev);
+    if (!isOpen && dateRange === 'custom') {
+      setTempStartDate(dayjs(filters.startDate));
+      setTempEndDate(dayjs(filters.endDate));
+    }
   };
 
   const fetchDailySalesData = async () => {
@@ -391,60 +440,84 @@ const Dashboard: React.FC = () => {
   return (
     <div className="space-y-4 p-2 sm:p-4">
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <Grid container spacing={3}>
+        <Grid container spacing={3} alignItems="center">
           {/* @ts-ignore */}
           <Grid item xs={12} sm={6} md={4}>
-            <FormControl
-              variant="outlined"
-              size="small"
-              fullWidth
-              className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 border border-gray-300 dark:border-gray-700"
-            >
-              <InputLabel className="text-gray-900 dark:text-gray-200">
-                Filter by Date Range
-              </InputLabel>
-              <Select
-                value={dateRange}
-                onChange={handleDateRangeChange}
-                label="Filter by Date Range"
-                className="text-gray-900 dark:text-white bg-white dark:bg-gray-800"
-                MenuProps={{
-                  PaperProps: {
-                    className: 'bg-white dark:bg-gray-800'
-                  }
-                }}
-              >
-                {dateRangeOptions.map(option => (
-                  <MenuItem
-                    key={option.value}
-                    value={option.value}
-                    className="text-gray-900 dark:text-white"
-                  >
-                    {option.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-          {openDatePicker && (
-            // @ts-ignore
-            <Grid item xs={12} sm={6} md={4}>
-              <DateRangePicker
-                open={openDatePicker}
-                onClose={() => setOpenDatePicker(false)}
-                value={customDateRange}
-                onChange={handleCustomDateChange}
-                slotProps={{
-                  textField: {
-                    variant: 'outlined',
-                    size: 'small',
-                    fullWidth: true,
-                    className: 'bg-white dark:bg-gray-800'
-                  }
-                }}
+            <div className="relative">
+              <DateRangeFilterButton
+                selectedOption={dateRange}
+                startDate={filters.startDate}
+                endDate={filters.endDate}
+                isOpen={isOpen}
+                onClick={toggleDropdown}
               />
-            </Grid>
-          )}
+              {isOpen && (
+                <Paper
+                  className="absolute right-0 mt-1 w-72 z-10 origin-top-right shadow-lg rounded-lg overflow-hidden transform transition-all duration-200"
+                  style={{
+                    animation: isOpen ? 'fadeIn 150ms ease-out' : 'none',
+                  }}
+                >
+                  <List component="nav" aria-label="date range options" className="p-0">
+                    {dateOptions.map((option) => (
+                      <React.Fragment key={option}>
+                        <ListItemButton
+                          selected={dateRange === option}
+                          onClick={() => handleOptionSelect(option)}
+                          className={`${dateRange === option ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-50'}`}
+                        >
+                          <ListItemText primary={option.replace('last', 'Last ').replace(/([A-Z])/g, ' $1').trim()} />
+                        </ListItemButton>
+                        {option === 'custom' && dateRange === 'custom' && (
+                          <Collapse in={true} timeout="auto" unmountOnExit>
+                            <div className="px-4 py-3 bg-gray-50">
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                                <DatePicker
+                                  label="Start"
+                                  value={tempStartDate}
+                                  onChange={(newValue) => handleCustomDateChange(newValue, tempEndDate)}
+                                  maxDate={tempEndDate || undefined}
+                                  slotProps={{
+                                    textField: { size: 'small', margin: 'dense', sx: { width: '120px' }, className: 'bg-white' },
+                                  }}
+                                />
+                                <Typography sx={{ mx: 1 }}>-</Typography>
+                                <DatePicker
+                                  label="End"
+                                  value={tempEndDate}
+                                  onChange={(newValue) => handleCustomDateChange(tempStartDate, newValue)}
+                                  minDate={tempStartDate || undefined}
+                                  slotProps={{
+                                    textField: { size: 'small', margin: 'dense', sx: { width: '120px' }, className: 'bg-white' },
+                                  }}
+                                />
+                              </Box>
+                              {error && (
+                                <Typography color="error" variant="caption" sx={{ textAlign: 'center', mb: 2 }}>
+                                  {error}
+                                </Typography>
+                              )}
+                              <div className="flex justify-end">
+                                <Button
+                                  variant="contained"
+                                  color="primary"
+                                  size="small"
+                                  onClick={handleApplyCustomDate}
+                                  disabled={!tempStartDate || !tempEndDate}
+                                >
+                                  Apply
+                                </Button>
+                              </div>
+                            </div>
+                          </Collapse>
+                        )}
+                      </React.Fragment>
+                    ))}
+                  </List>
+                </Paper>
+              )}
+            </div>
+          </Grid>
         </Grid>
       </LocalizationProvider>
 
