@@ -443,7 +443,7 @@ const Dashboard: React.FC = () => {
         <Grid container spacing={3} alignItems="center">
           {/* @ts-ignore */}
           <Grid item xs={12} sm={6} md={4} lg={3} className="flex justify-end">
-            <div className="relative w-full sm:w-auto">
+            <div className="relative w-85 sm:w-auto">
               <DateRangeFilterButton
                 selectedOption={dateRange}
                 startDate={filters.startDate}
@@ -473,7 +473,7 @@ const Dashboard: React.FC = () => {
                         </ListItemButton>
                         {option === 'custom' && dateRange === 'custom' && (
                           <Collapse in={true} timeout="auto" unmountOnExit>
-                            <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700">
+                            <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800">
                               <div className="flex items-center gap-2 mb-3">
                                 <DatePicker
                                   label="Start"
@@ -484,7 +484,13 @@ const Dashboard: React.FC = () => {
                                     textField: {
                                       size: 'small',
                                       margin: 'dense',
-                                      className: 'w-[150px] bg-white dark:bg-gray-600 rounded-md border-gray-300 dark:border-gray-500 text-gray-700 dark:text-gray-200',
+                                      className: 'w-[150px] bg-white dark:bg-gray-900 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 rounded-md focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 placeholder-gray-400 dark:placeholder-gray-300',
+                                      InputLabelProps: {
+                                        className: 'text-gray-900 dark:text-white',
+                                      },
+                                      InputProps: {
+                                        className: 'text-gray-900 dark:text-white',
+                                      },
                                     },
                                   }}
                                 />
@@ -498,7 +504,13 @@ const Dashboard: React.FC = () => {
                                     textField: {
                                       size: 'small',
                                       margin: 'dense',
-                                      className: 'w-[150px] bg-white dark:bg-gray-600 rounded-md border-gray-300 dark:border-gray-500 text-gray-700 dark:text-gray-200',
+                                      className: 'w-[150px] bg-white dark:bg-gray-900 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 rounded-md focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 placeholder-gray-400 dark:placeholder-gray-300',
+                                      InputLabelProps: {
+                                        className: 'text-gray-900 dark:text-white',
+                                      },
+                                      InputProps: {
+                                        className: 'text-gray-900 dark:text-white',
+                                      },
                                     },
                                   }}
                                 />
@@ -512,6 +524,7 @@ const Dashboard: React.FC = () => {
                                 <Button
                                   variant="contained"
                                   size="small"
+                                  color="primary"
                                   onClick={handleApplyCustomDate}
                                   disabled={!tempStartDate || !tempEndDate}
                                   className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-md px-4 py-1"
