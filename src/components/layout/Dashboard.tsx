@@ -491,6 +491,11 @@ const Dashboard: React.FC = () => {
                                       InputProps: {
                                         className: 'text-gray-900 dark:text-white',
                                       },
+                                      sx: {
+                                        '& .MuiInputAdornment-root .MuiSvgIcon-root': {
+                                          color: document.documentElement.classList.contains('dark') ? '#fff' : '#111827',
+                                        },
+                                      },
                                     },
                                   }}
                                 />
@@ -510,6 +515,11 @@ const Dashboard: React.FC = () => {
                                       },
                                       InputProps: {
                                         className: 'text-gray-900 dark:text-white',
+                                      },
+                                      sx: {
+                                        '& .MuiInputAdornment-root .MuiSvgIcon-root': {
+                                          color: document.documentElement.classList.contains('dark') ? '#fff' : '#111827',
+                                        },
                                       },
                                     },
                                   }}
