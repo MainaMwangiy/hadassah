@@ -17,7 +17,7 @@ interface ChartData {
 }
 
 const TotalSales = ({ total, days, percentageChange }: { total: number, days: any, percentageChange: number }) => {
-  let daysNo = utils.getLasDays(days);
+  let daysNo = utils.getDaysCount(days);
   return (
     <div className="w-full sm:w-1/4 p-4 text-center bg-white dark:bg-gray-800 shadow-md dark:shadow-inner rounded-lg">
       <p className="text-sm text-gray-400 dark:text-gray-500">Total Sales Amount</p>
@@ -31,7 +31,7 @@ const TotalSales = ({ total, days, percentageChange }: { total: number, days: an
 };
 
 const SalesPerPeriod = ({ salesCount, days, percentageChange }: { salesCount: number, days: any, percentageChange: number }) => {
-  let daysNo = utils.getLasDays(days);
+  let daysNo = utils.getDaysCount(days);
   return (
     <div className="w-full sm:w-1/4 p-4 text-center bg-white dark:bg-gray-800 shadow-md dark:shadow-inner rounded-lg">
       <p className="text-sm text-gray-400 dark:text-gray-500">{`Total Sales Count in ${daysNo} Last Days`}</p>
@@ -45,7 +45,7 @@ const SalesPerPeriod = ({ salesCount, days, percentageChange }: { salesCount: nu
 };
 
 const AverageSales = ({ total, days, percentageChange }: { total: number, days: any, percentageChange: number }) => {
-  let daysNo = utils.getLasDays(days);
+  let daysNo = utils.getDaysCount(days);
   const averageSales = daysNo ? (total / daysNo) : 'N/A';
   return (
     <div className="w-full sm:w-1/4 p-4 text-center bg-white dark:bg-gray-800 shadow-md dark:shadow-inner rounded-lg">
@@ -62,7 +62,7 @@ const AverageSales = ({ total, days, percentageChange }: { total: number, days: 
 };
 
 const TotalProfits = ({ profits, days, percentageChange }: { profits: number, days: any, percentageChange: number }) => {
-  let daysNo = utils.getLasDays(days);
+  let daysNo = utils.getDaysCount(days);
   return (
     <div className="w-full sm:w-1/4 p-4 text-center bg-white dark:bg-gray-800 shadow-md dark:shadow-inner rounded-lg">
       <p className="text-sm text-gray-400 dark:text-gray-500">Total Profits</p>
@@ -76,7 +76,7 @@ const TotalProfits = ({ profits, days, percentageChange }: { profits: number, da
 };
 
 const GrowthRate = ({ days, growthData }: { days: any, growthData: any }) => {
-  let daysNo = utils.getLasDays(days);
+  let daysNo = utils.getDaysCount(days);
   const growthPercentage = growthData?.growthPercentage || 0;
   const previousGrowthPercentage = 0;
 
@@ -195,7 +195,7 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const { enqueueSnackbar } = useSnackbar();
   const { apiRequest } = useApi();
-  const [dateRange, setDateRange] = useState("last7days");
+  const [dateRange, setDateRange] = useState("Last7Days");
   const [filters, setFilters] = useState<{ startDate: string; endDate: string }>({
     startDate: dayjs().subtract(7, 'day').format('YYYY-MM-DD'),
     endDate: dayjs().format('YYYY-MM-DD')
@@ -210,23 +210,16 @@ const Dashboard: React.FC = () => {
     percentageChanges: { salesAmount: 0, salesCount: 0, profits: 0 }
   });
   const { darkMode } = useDarkMode();
-  const dateOptions = ['last7days', 'last1month', 'last3months', 'last1year', 'custom'];
 
   const calculateDateRange = (range: string): { startDate: string; endDate: string } => {
     const currentDate = dayjs();
     let startDate: Dayjs = currentDate;
     let endDate: Dayjs = currentDate;
 
-    const rangeCalculations: Record<string, () => Dayjs> = {
-      last7days: () => startDate.subtract(7, 'day'),
-      last1month: () => startDate.subtract(1, 'month'),
-      last3months: () => startDate.subtract(3, 'month'),
-      last1year: () => startDate.subtract(1, 'year')
-    };
-
-    if (rangeCalculations[range]) {
-      startDate = rangeCalculations[range]();
-    } else if (range === 'custom' && tempStartDate && tempEndDate) {
+    const option = utils.dateOptions.find(opt => opt.value === range);
+    if (option && option.days) {
+      startDate = currentDate.subtract(option.days, 'day');
+    } else if (range === 'Custom' && tempStartDate && tempEndDate) {
       startDate = tempStartDate;
       endDate = tempEndDate;
     }
@@ -239,7 +232,7 @@ const Dashboard: React.FC = () => {
 
   const handleOptionSelect = (option: string) => {
     setDateRange(option);
-    if (option !== 'custom') {
+    if (option !== 'Custom') {
       const { startDate, endDate } = calculateDateRange(option);
       setFilters({ startDate, endDate });
       setIsOpen(false);
@@ -262,7 +255,7 @@ const Dashboard: React.FC = () => {
         setError('End date cannot be before start date');
         return;
       }
-      const { startDate, endDate } = calculateDateRange('custom');
+      const { startDate, endDate } = calculateDateRange('Custom');
       setFilters({ startDate, endDate });
       setError('');
       setIsOpen(false);
@@ -273,7 +266,7 @@ const Dashboard: React.FC = () => {
 
   const toggleDropdown = () => {
     setIsOpen(prev => !prev);
-    if (!isOpen && dateRange === 'custom') {
+    if (!isOpen && dateRange === 'Custom') {
       setTempStartDate(dayjs(filters.startDate));
       setTempEndDate(dayjs(filters.endDate));
     }
@@ -433,8 +426,8 @@ const Dashboard: React.FC = () => {
   const pieChartData = preparePieChartData(totalSalesAnalytics?.data);
 
   const calculateAverageSalesPercentage = () => {
-    const currentAverage = salesAnalytics.currentPeriod.totalSales / utils.getLasDays(dateRange);
-    const previousAverage = salesAnalytics.previousPeriod.totalSales / utils.getLasDays(dateRange);
+    const currentAverage = salesAnalytics.currentPeriod.totalSales / utils.getDaysCount(dateRange);
+    const previousAverage = salesAnalytics.previousPeriod.totalSales / utils.getDaysCount(dateRange);
     return previousAverage === 0 ? 0 : ((currentAverage - previousAverage) / previousAverage) * 100;
   };
 
@@ -460,19 +453,19 @@ const Dashboard: React.FC = () => {
                   }}
                 >
                   <List component="nav" aria-label="date range options" className="p-0">
-                    {dateOptions.map((option) => (
-                      <React.Fragment key={option}>
+                    {utils.dateOptions.map((option) => (
+                      <React.Fragment key={option.value}>
                         <ListItemButton
-                          selected={dateRange === option}
-                          onClick={() => handleOptionSelect(option)}
-                          className={`${dateRange === option
+                          selected={dateRange === option.value}
+                          onClick={() => handleOptionSelect(option.value)}
+                          className={`${dateRange === option.value
                             ? 'bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300'
                             : 'hover:bg-gray-100 dark:hover:bg-gray-700'
                             } text-gray-700 dark:text-gray-200 px-4 py-2`}
                         >
-                          <ListItemText primary={option.replace('last', 'Last ').replace(/([A-Z])/g, ' $1').trim()} />
+                          <ListItemText primary={option.label} />
                         </ListItemButton>
-                        {option === 'custom' && dateRange === 'custom' && (
+                        {option.value === 'Custom' && dateRange === 'Custom' && (
                           <Collapse in={true} timeout="auto" unmountOnExit>
                             <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800">
                               <div className="flex items-center gap-2 mb-3">

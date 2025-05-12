@@ -154,26 +154,22 @@ const utils = {
     const field = config.customKeyField || config.keyField || '';
     return field.toLowerCase();
   },
-  getLasDays: (days: any): any => {
-    let avrValue: number | undefined;
-    switch (days) {
-      case "Last7Days":
-        avrValue =  7;
-        break;
-      case "Last14Days":
-        avrValue =  14;
-        break;
-      case "Last30Days":
-        avrValue =  30;
-        break;
-      case "Last90Days":
-        avrValue =  90;
-        break;
-      default:
-        avrValue = undefined;
-        break;
+  dateOptions: [
+    { value: 'Last7Days', label: 'Last 7 Days', days: 7 },
+    { value: 'Last30Days', label: 'Last 30 Days', days: 30 },
+    { value: 'Last90Days', label: 'Last 90 Days', days: 90 },
+    { value: 'Last1Year', label: 'Last 1 Year', days: 365 },
+    { value: 'Custom', label: 'Custom', days: null },
+  ],
+  getDaysCount: (days: string): number => {
+    const option = utils.dateOptions.find(opt => opt.value === days);
+    if (option && option.days !== null) {
+      return option.days;
     }
-    return avrValue;
+    // else if (days === 'Custom' && tempStartDate && tempEndDate) {
+    //   return tempEndDate.diff(tempStartDate, 'day') + 1;
+    // }
+    return 0;
   }
 };
 
