@@ -16,8 +16,8 @@ interface ChartData {
   y: number;
 }
 
-const TotalSales = ({ total, days, percentageChange }: { total: number, days: any, percentageChange: number }) => {
-  let daysNo = utils.getDaysCount(days);
+const TotalSales = ({ total, days, percentageChange, tempStartDate, tempEndDate }: { total: number, days: any, percentageChange: number, tempStartDate?: Dayjs | null, tempEndDate?: Dayjs | null }) => {
+  let daysNo = utils.getDaysCount(days, tempStartDate, tempEndDate);
   return (
     <div className="w-full sm:w-1/4 p-4 text-center bg-white dark:bg-gray-800 shadow-md dark:shadow-inner rounded-lg">
       <p className="text-sm text-gray-400 dark:text-gray-500">Total Sales Amount</p>
@@ -30,8 +30,8 @@ const TotalSales = ({ total, days, percentageChange }: { total: number, days: an
   );
 };
 
-const SalesPerPeriod = ({ salesCount, days, percentageChange }: { salesCount: number, days: any, percentageChange: number }) => {
-  let daysNo = utils.getDaysCount(days);
+const SalesPerPeriod = ({ salesCount, days, percentageChange, tempStartDate, tempEndDate }: { salesCount: number, days: any, percentageChange: number, tempStartDate?: Dayjs | null, tempEndDate?: Dayjs | null }) => {
+  let daysNo = utils.getDaysCount(days, tempStartDate, tempEndDate);
   return (
     <div className="w-full sm:w-1/4 p-4 text-center bg-white dark:bg-gray-800 shadow-md dark:shadow-inner rounded-lg">
       <p className="text-sm text-gray-400 dark:text-gray-500">{`Total Sales Count in ${daysNo} Last Days`}</p>
@@ -44,8 +44,8 @@ const SalesPerPeriod = ({ salesCount, days, percentageChange }: { salesCount: nu
   );
 };
 
-const AverageSales = ({ total, days, percentageChange }: { total: number, days: any, percentageChange: number }) => {
-  let daysNo = utils.getDaysCount(days);
+const AverageSales = ({ total, days, percentageChange, tempStartDate, tempEndDate }: { total: number, days: any, percentageChange: number, tempStartDate?: Dayjs | null, tempEndDate?: Dayjs | null }) => {
+  let daysNo = utils.getDaysCount(days, tempStartDate, tempEndDate);
   const averageSales = daysNo ? (total / daysNo) : 'N/A';
   return (
     <div className="w-full sm:w-1/4 p-4 text-center bg-white dark:bg-gray-800 shadow-md dark:shadow-inner rounded-lg">
@@ -61,8 +61,8 @@ const AverageSales = ({ total, days, percentageChange }: { total: number, days: 
   );
 };
 
-const TotalProfits = ({ profits, days, percentageChange }: { profits: number, days: any, percentageChange: number }) => {
-  let daysNo = utils.getDaysCount(days);
+const TotalProfits = ({ profits, days, percentageChange, tempStartDate, tempEndDate }: { profits: number, days: any, percentageChange: number, tempStartDate?: Dayjs | null, tempEndDate?: Dayjs | null }) => {
+  let daysNo = utils.getDaysCount(days, tempStartDate, tempEndDate);
   return (
     <div className="w-full sm:w-1/4 p-4 text-center bg-white dark:bg-gray-800 shadow-md dark:shadow-inner rounded-lg">
       <p className="text-sm text-gray-400 dark:text-gray-500">Total Profits</p>
@@ -75,8 +75,8 @@ const TotalProfits = ({ profits, days, percentageChange }: { profits: number, da
   );
 };
 
-const GrowthRate = ({ days, growthData }: { days: any, growthData: any }) => {
-  let daysNo = utils.getDaysCount(days);
+const GrowthRate = ({ days, growthData, tempStartDate, tempEndDate }: { days: any, growthData: any, tempStartDate?: Dayjs | null, tempEndDate?: Dayjs | null }) => {
+  let daysNo = utils.getDaysCount(days, tempStartDate, tempEndDate);
   const growthPercentage = growthData?.growthPercentage || 0;
   const previousGrowthPercentage = 0;
 
@@ -555,24 +555,32 @@ const Dashboard: React.FC = () => {
         {TotalSales({
           total: salesAnalytics.currentPeriod.totalSales,
           days: dateRange,
-          percentageChange: salesAnalytics.percentageChanges.salesAmount
+          percentageChange: salesAnalytics.percentageChanges.salesAmount,
+          tempStartDate,
+          tempEndDate
         })}
         {SalesPerPeriod({
           salesCount: salesAnalytics.currentPeriod.salesCount,
           days: dateRange,
-          percentageChange: salesAnalytics.percentageChanges.salesCount
+          percentageChange: salesAnalytics.percentageChanges.salesCount,
+          tempStartDate,
+          tempEndDate
         })}
         {TotalProfits({
           profits: salesAnalytics.currentPeriod.totalProfits,
           days: dateRange,
-          percentageChange: salesAnalytics.percentageChanges.profits
+          percentageChange: salesAnalytics.percentageChanges.profits,
+          tempStartDate,
+          tempEndDate
         })}
         {AverageSales({
           total: salesAnalytics.currentPeriod.totalSales,
           days: dateRange,
-          percentageChange: calculateAverageSalesPercentage()
+          percentageChange: calculateAverageSalesPercentage(),
+          tempStartDate,
+          tempEndDate
         })}
-        {GrowthRate({ days: dateRange, growthData: salesGrowth })}
+        {GrowthRate({ days: dateRange, growthData: salesGrowth, tempStartDate, tempEndDate })}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

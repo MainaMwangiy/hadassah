@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Dispatch } from 'redux';
 import axios from "axios";
 import { constants } from "./constants";
+import dayjs, { Dayjs } from "dayjs";
 
 interface UserData {
   name: string;
@@ -161,14 +162,16 @@ const utils = {
     { value: 'Last1Year', label: 'Last 1 Year', days: 365 },
     { value: 'Custom', label: 'Custom', days: null },
   ],
-  getDaysCount: (days: string): number => {
+  getDaysCount: (days: string, tempStartDate?: Dayjs | null, tempEndDate?: Dayjs | null): number => {
     const option = utils.dateOptions.find(opt => opt.value === days);
     if (option && option.days !== null) {
       return option.days;
+    } else if (days === 'Custom' && tempStartDate && tempEndDate) {
+      if (tempEndDate.isBefore(tempStartDate)) {
+        return 0;
+      }
+      return tempEndDate.diff(tempStartDate, 'day') + 1;
     }
-    // else if (days === 'Custom' && tempStartDate && tempEndDate) {
-    //   return tempEndDate.diff(tempStartDate, 'day') + 1;
-    // }
     return 0;
   }
 };
