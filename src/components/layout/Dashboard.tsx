@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FormControl, Grid, InputLabel, MenuItem, Select, SelectChangeEvent, Paper, List, ListItemButton, ListItemText, Collapse, Button, Box, Typography } from "@mui/material";
+import { Grid, Paper, List, ListItemButton, ListItemText, Collapse, Button, Typography } from "@mui/material";
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import ChartComponent from "../Charts/Charts";
@@ -9,6 +9,7 @@ import utils from "../../utils";
 import { useApi } from "../../hooks/Apis";
 import Loader from "../../hooks/Loader";
 import dayjs, { Dayjs } from 'dayjs';
+import { useDarkMode } from "../../hooks/DarkModeContext";
 
 interface ChartData {
   name: string;
@@ -208,7 +209,7 @@ const Dashboard: React.FC = () => {
     previousPeriod: { totalSales: 0, salesCount: 0, totalProfits: 0 },
     percentageChanges: { salesAmount: 0, salesCount: 0, profits: 0 }
   });
-
+  const { darkMode } = useDarkMode();
   const dateOptions = ['last7days', 'last1month', 'last3months', 'last1year', 'custom'];
 
   const calculateDateRange = (range: string): { startDate: string; endDate: string } => {
@@ -493,7 +494,8 @@ const Dashboard: React.FC = () => {
                                       },
                                       sx: {
                                         '& .MuiInputAdornment-root .MuiSvgIcon-root': {
-                                          color: document.documentElement.classList.contains('dark') ? '#fff' : '#111827',
+                                          color: darkMode ? '#fff' : '#111827',
+                                          transition: 'color 0.2s ease-in-out'
                                         },
                                       },
                                     },
@@ -518,7 +520,8 @@ const Dashboard: React.FC = () => {
                                       },
                                       sx: {
                                         '& .MuiInputAdornment-root .MuiSvgIcon-root': {
-                                          color: document.documentElement.classList.contains('dark') ? '#fff' : '#111827',
+                                          color: darkMode ? '#fff' : '#111827',
+                                          transition: 'color 0.2s ease-in-out'
                                         },
                                       },
                                     },
