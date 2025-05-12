@@ -165,20 +165,20 @@ const DateRangeFilterButton: React.FC<{
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent text-gray-700 dark:text-gray-200"
       aria-expanded={isOpen}
       aria-haspopup="true"
     >
-      <svg className="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="h-5 w-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
       </svg>
-      <span className="text-sm font-medium text-gray-700">{displayText}</span>
+      <span className="text-sm font-medium">{displayText}</span>
       {isOpen ? (
-        <svg className="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="h-5 w-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7" />
         </svg>
       ) : (
-        <svg className="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="h-5 w-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
         </svg>
       )}
@@ -442,8 +442,8 @@ const Dashboard: React.FC = () => {
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <Grid container spacing={3} alignItems="center">
           {/* @ts-ignore */}
-          <Grid item xs={12} sm={6} md={4}>
-            <div className="relative">
+          <Grid item xs={12} sm={6} md={4} lg={3} className="flex justify-end">
+            <div className="relative w-full sm:w-auto">
               <DateRangeFilterButton
                 selectedOption={dateRange}
                 startDate={filters.startDate}
@@ -453,7 +453,7 @@ const Dashboard: React.FC = () => {
               />
               {isOpen && (
                 <Paper
-                  className="absolute right-0 mt-1 w-72 z-10 origin-top-right shadow-lg rounded-lg overflow-hidden transform transition-all duration-200"
+                  className="absolute left-0 mt-2 w-85 z-10 origin-top-right shadow-lg rounded-lg overflow-hidden transform transition-all duration-200 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 animate-fadeIn"
                   style={{
                     animation: isOpen ? 'fadeIn 150ms ease-out' : 'none',
                   }}
@@ -464,46 +464,57 @@ const Dashboard: React.FC = () => {
                         <ListItemButton
                           selected={dateRange === option}
                           onClick={() => handleOptionSelect(option)}
-                          className={`${dateRange === option ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-50'}`}
+                          className={`${dateRange === option
+                            ? 'bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300'
+                            : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+                            } text-gray-700 dark:text-gray-200 px-4 py-2`}
                         >
                           <ListItemText primary={option.replace('last', 'Last ').replace(/([A-Z])/g, ' $1').trim()} />
                         </ListItemButton>
                         {option === 'custom' && dateRange === 'custom' && (
                           <Collapse in={true} timeout="auto" unmountOnExit>
-                            <div className="px-4 py-3 bg-gray-50">
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                            <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700">
+                              <div className="flex items-center gap-2 mb-3">
                                 <DatePicker
                                   label="Start"
                                   value={tempStartDate}
                                   onChange={(newValue) => handleCustomDateChange(newValue, tempEndDate)}
                                   maxDate={tempEndDate || undefined}
                                   slotProps={{
-                                    textField: { size: 'small', margin: 'dense', sx: { width: '120px' }, className: 'bg-white' },
+                                    textField: {
+                                      size: 'small',
+                                      margin: 'dense',
+                                      className: 'w-[150px] bg-white dark:bg-gray-600 rounded-md border-gray-300 dark:border-gray-500 text-gray-700 dark:text-gray-200',
+                                    },
                                   }}
                                 />
-                                <Typography sx={{ mx: 1 }}>-</Typography>
+                                <Typography className="text-gray-700 dark:text-gray-200">-</Typography>
                                 <DatePicker
                                   label="End"
                                   value={tempEndDate}
                                   onChange={(newValue) => handleCustomDateChange(tempStartDate, newValue)}
                                   minDate={tempStartDate || undefined}
                                   slotProps={{
-                                    textField: { size: 'small', margin: 'dense', sx: { width: '120px' }, className: 'bg-white' },
+                                    textField: {
+                                      size: 'small',
+                                      margin: 'dense',
+                                      className: 'w-[150px] bg-white dark:bg-gray-600 rounded-md border-gray-300 dark:border-gray-500 text-gray-700 dark:text-gray-200',
+                                    },
                                   }}
                                 />
-                              </Box>
+                              </div>
                               {error && (
-                                <Typography color="error" variant="caption" sx={{ textAlign: 'center', mb: 2 }}>
+                                <Typography className="text-red-500 dark:text-red-400 text-center text-xs mb-3">
                                   {error}
                                 </Typography>
                               )}
                               <div className="flex justify-end">
                                 <Button
                                   variant="contained"
-                                  color="primary"
                                   size="small"
                                   onClick={handleApplyCustomDate}
                                   disabled={!tempStartDate || !tempEndDate}
+                                  className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-md px-4 py-1"
                                 >
                                   Apply
                                 </Button>
