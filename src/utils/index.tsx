@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Dispatch } from 'redux';
 import axios from "axios";
 import { constants } from "./constants";
+import dayjs, { Dayjs } from "dayjs";
 
 interface UserData {
   name: string;
@@ -154,26 +155,24 @@ const utils = {
     const field = config.customKeyField || config.keyField || '';
     return field.toLowerCase();
   },
-  getLasDays: (days: any): any => {
-    let avrValue: number | undefined;
-    switch (days) {
-      case "Last7Days":
-        avrValue =  7;
-        break;
-      case "Last14Days":
-        avrValue =  14;
-        break;
-      case "Last30Days":
-        avrValue =  30;
-        break;
-      case "Last90Days":
-        avrValue =  90;
-        break;
-      default:
-        avrValue = undefined;
-        break;
+  dateOptions: [
+    { value: 'Last7Days', label: 'Last 7 Days', days: 7 },
+    { value: 'Last30Days', label: 'Last 30 Days', days: 30 },
+    { value: 'Last90Days', label: 'Last 90 Days', days: 90 },
+    { value: 'Last1Year', label: 'Last 1 Year', days: 365 },
+    { value: 'Custom', label: 'Custom', days: null },
+  ],
+  getDaysCount: (days: string, tempStartDate?: Dayjs | null, tempEndDate?: Dayjs | null): number => {
+    const option = utils.dateOptions.find(opt => opt.value === days);
+    if (option && option.days !== null) {
+      return option.days;
+    } else if (days === 'Custom' && tempStartDate && tempEndDate) {
+      if (tempEndDate.isBefore(tempStartDate)) {
+        return 0;
+      }
+      return tempEndDate.diff(tempStartDate, 'day') + 1;
     }
-    return avrValue;
+    return 0;
   }
 };
 

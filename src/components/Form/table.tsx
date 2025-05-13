@@ -47,7 +47,7 @@ const Table: React.FC<GenericTableProps> = ({ config, onEdit, params, hideAction
 
   const fetchData = async (searchValue?: string) => {
     setLoading(true);
-    const { url='', payload = {} } = config.apiEndpoints.list || {};
+    const { url = '', payload = {} } = config.apiEndpoints.list || {};
     const additionalParams = payload.hideProject ? {} : { projectid: rest?.id };
     const tempPayload = {
       ...payload,
@@ -60,7 +60,8 @@ const Table: React.FC<GenericTableProps> = ({ config, onEdit, params, hideAction
     const response = await apiRequest({ method: "POST", url: url, data: tempPayload });
     setData(response?.data || []);
     setTotalItems(response?.totalItems || 0);
-    if (updateLocal) {
+    const custom = localKey.toLowerCase() === 'products';
+    if (updateLocal && !custom) {
       localStorage.setItem(localKey, JSON.stringify(response?.data))
     }
     setLoading(false);
@@ -115,10 +116,10 @@ const Table: React.FC<GenericTableProps> = ({ config, onEdit, params, hideAction
   };
 
   return (
-    <>       
-     {config?.addSearch && <SearchInput 
-        placeholder={`Search for ${config?.title}`} 
-        searchTerm={searchTerm} 
+    <>
+      {config?.addSearch && <SearchInput
+        placeholder={`Search for ${config?.title}`}
+        searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
         onSearch={handleSearch}
         onClear={handleClearSearch}
