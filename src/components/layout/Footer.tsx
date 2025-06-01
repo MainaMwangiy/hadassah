@@ -1,24 +1,39 @@
+import type React from "react"
+
 const Footer: React.FC = () => {
-  const currentYear = new Date().getFullYear(); 
+  const currentYear = new Date().getFullYear()
+
   return (
-    <footer className="bg-white shadow-lg dark:bg-gray-900 text-gray-900 dark:text-gray-100 py-4 mt-8">
-      <div className="container mx-auto flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-        {/* Can add later */}
-        {/* <div>
-          <ul className="flex flex-col md:flex-row md:space-x-4 space-y-2 md:space-y-0">
-            <li><a href="/">Terms and conditions</a></li>
-            <li><a href="/">Privacy Policy</a></li>
-            <li><a href="/">Licensing</a></li>
-            <li><a href="/">Cookie Policy</a></li>
-            <li><a href="/">Contact</a></li>
-          </ul>
-        </div> */}
-        <div className="text-center md:text-right">
-          <span>© {currentYear} Hadassah Scents. All rights reserved.</span>
+    <footer className="border-t border-gray-200 bg-white py-4 dark:border-gray-800 dark:bg-gray-900">
+      <div className="container mx-auto px-4">
+        <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
+          <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+            © {currentYear} Hadassah Scents. All rights reserved.
+          </p>
+          <div className="flex items-center gap-4">
+            <a
+              href="#"
+              className="text-sm text-gray-500 hover:text-purple-600 dark:text-gray-400 dark:hover:text-purple-400"
+            >
+              Privacy Policy
+            </a>
+            <a
+              href="#"
+              className="text-sm text-gray-500 hover:text-purple-600 dark:text-gray-400 dark:hover:text-purple-400"
+            >
+              Terms of Service
+            </a>
+            <a
+              href="#"
+              className="text-sm text-gray-500 hover:text-purple-600 dark:text-gray-400 dark:hover:text-purple-400"
+            >
+              Contact
+            </a>
+          </div>
         </div>
       </div>
     </footer>
-  );
-};
+  )
+}
 
-export default Footer;
+export default Footer
