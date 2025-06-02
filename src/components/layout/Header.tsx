@@ -2,7 +2,7 @@
 
 import React from "react"
 import { useNavigate } from "react-router-dom"
-import { Bell, Moon, Sun, Menu, Search } from "lucide-react"
+import { Bell, Moon, Sun, Menu } from "lucide-react"
 import { useDarkMode } from "../../hooks/DarkModeContext"
 import ProfileDropdown from "../../hooks/ProfileDropdown"
 

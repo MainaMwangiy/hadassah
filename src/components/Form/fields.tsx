@@ -26,16 +26,6 @@ const FormField: React.FC<{ fieldConfig: FieldConfig }> = ({ fieldConfig }) => {
     const formData = new FormData()
     formData.append("image", file)
 
-    const config = {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-      onUploadProgress: (progressEvent: ProgressEvent) => {
-        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-        setUploadProgress(percentCompleted)
-      },
-    }
-
     try {
       // const response = await axios.post("api/image-upload-url", formData, config);
       // helpers.setValue(response.data.url);
@@ -60,7 +50,6 @@ const FormField: React.FC<{ fieldConfig: FieldConfig }> = ({ fieldConfig }) => {
     setIsDragOver(false)
     const files = e.dataTransfer.files
     if (files.length > 0) {
-      const file = files[0]
       // Handle file upload
     }
   }

@@ -3,7 +3,7 @@
 import type React from "react"
 import { useEffect, useState, useRef } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { User, Settings, LogOut, ChevronDown } from "lucide-react"
+import { User, LogOut, ChevronDown } from "lucide-react"
 
 interface UserData {
   name: string

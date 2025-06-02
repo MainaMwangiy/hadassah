@@ -1,10 +1,5 @@
-import { getAuth, GithubAuthProvider, GoogleAuthProvider, signInWithPopup, UserCredential } from "firebase/auth";
-import { initializeApp } from "firebase/app";
-import { v4 as uuidv4 } from 'uuid';
-import { Dispatch } from 'redux';
-import axios from "axios";
 import { constants } from "./constants";
-import dayjs, { Dayjs } from "dayjs";
+import { Dayjs } from "dayjs";
 
 interface UserData {
   name: string;
