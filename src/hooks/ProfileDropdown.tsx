@@ -68,26 +68,28 @@ const ProfileDropdown: React.FC = () => {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1 rounded-full border border-gray-200 bg-white p-1 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:focus:ring-blue-400 sm:gap-2 sm:p-1.5"
+        className="flex items-center justify-between gap-1 rounded-full border border-gray-200 bg-white p-1 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:focus:ring-blue-400 sm:gap-2 sm:p-1.5 w-full sm:w-auto"
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
-        {userData?.image_url ? (
-          <img
-            src={userData.image_url || "/placeholder.svg"}
-            alt="Profile"
-            className="h-6 w-6 rounded-full object-cover sm:h-7 sm:w-7"
-            onError={(e) => {
-              ; (e.target as HTMLImageElement).src = "https://via.placeholder.com/40"
-            }}
-          />
-        ) : (
-          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-purple-600 to-blue-500 sm:h-7 sm:w-7">
-            <span className="text-xs font-medium text-white">{userData?.name?.charAt(0) || "U"}</span>
-          </div>
-        )}
-        <span className="hidden truncate max-w-20 md:inline-block md:max-w-32">{userData?.name || "User"}</span>
-        <ChevronDown className="hidden h-3 w-3 md:inline-block sm:h-4 sm:w-4" />
+        <div className="flex items-center gap-1 sm:gap-2">
+          {userData?.image_url ? (
+            <img
+              src={userData.image_url || "/placeholder.svg"}
+              alt="Profile"
+              className="h-6 w-6 rounded-full object-cover sm:h-7 sm:w-7"
+              onError={(e) => {
+                ; (e.target as HTMLImageElement).src = "https://via.placeholder.com/40"
+              }}
+            />
+          ) : (
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-purple-600 to-blue-500 sm:h-7 sm:w-7">
+              <span className="text-xs font-medium text-white">{userData?.name?.charAt(0) || "U"}</span>
+            </div>
+          )}
+          <span className="hidden truncate max-w-20 md:inline-block md:max-w-32">{userData?.name || "User"}</span>
+        </div>
+        <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4" />
       </button>
 
       {isOpen && (
@@ -125,19 +127,11 @@ const ProfileDropdown: React.FC = () => {
                 <User className="h-4 w-4" />
                 <span>Profile</span>
               </Link>
-              <Link
-                to="/settings"
-                className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:text-gray-200 dark:hover:bg-gray-700 dark:focus:ring-orange-400 dark:focus:ring-offset-gray-800"
-                onClick={() => setIsOpen(false)}
-              >
-                <Settings className="h-4 w-4" />
-                <span>Settings</span>
-              </Link>
               <button
                 onClick={handleLogout}
                 className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-red-600 transition-colors hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:text-red-400 dark:hover:bg-red-900/20 dark:focus:ring-red-400 dark:focus:ring-offset-gray-800"
               >
-                {/* <LogOut className="h-4 w-4" /> */}
+                <LogOut className="h-4 w-4" />
                 <span>Sign out</span>
               </button>
             </div>

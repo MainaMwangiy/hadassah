@@ -380,17 +380,19 @@ const Dashboard: React.FC = () => {
           <div className="relative">
             <button
               onClick={toggleDropdown}
-              className="flex w-full items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 sm:w-auto sm:px-4"
+              className="flex w-full items-center justify-between gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 sm:w-auto sm:px-4"
             >
-              <CalendarIcon size={14} className="sm:h-4 sm:w-4" />
-              <span className="truncate">
-                {dateRange === "Custom"
-                  ? `${dayjs(filters.startDate).format("MMM D, YYYY")} - ${dayjs(filters.endDate).format("MMM D, YYYY")}`
-                  : dateRange
-                    .replace("last", "Last ")
-                    .replace(/([A-Z])/g, " $1")
-                    .trim()}
-              </span>
+              <div className="flex items-center gap-2">
+                <CalendarIcon size={14} className="sm:h-4 sm:w-4" />
+                <span className="truncate">
+                  {dateRange === "Custom"
+                    ? `${dayjs(filters.startDate).format("MMM D, YYYY")} - ${dayjs(filters.endDate).format("MMM D, YYYY")}`
+                    : dateRange
+                      .replace("last", "Last ")
+                      .replace(/([A-Z])/g, " $1")
+                      .trim()}
+                </span>
+              </div>
               {isOpen ? (
                 <ChevronUp size={14} className="sm:h-4 sm:w-4" />
               ) : (

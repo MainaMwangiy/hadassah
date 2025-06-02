@@ -16,7 +16,7 @@ const Header: React.FC<HeaderProps> = ({ isOpen, toggleSidebar }) => {
   const { toggleDarkMode, darkMode } = useDarkMode()
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-2 border-b border-gray-200 bg-white px-3 dark:border-gray-800 dark:bg-gray-900 sm:h-16 sm:px-4 md:px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-2 border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 sm:h-16">
       <div className="flex items-center gap-2">
         <button
           onClick={toggleSidebar}
@@ -26,14 +26,14 @@ const Header: React.FC<HeaderProps> = ({ isOpen, toggleSidebar }) => {
           <span className="sr-only">Toggle sidebar</span>
         </button>
 
-        <div className="relative flex-1 sm:flex sm:max-w-xs md:max-w-sm lg:max-w-md">
+        {/* <div className="relative flex-1 sm:flex sm:max-w-xs md:max-w-sm lg:max-w-md">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400" />
           <input
             type="search"
             placeholder="Search..."
             className="h-8 w-full rounded-md border border-gray-200 bg-white pl-8 text-sm text-gray-900 placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 dark:border-gray-800 dark:bg-gray-950 dark:text-white dark:placeholder:text-gray-400 dark:focus-visible:ring-purple-400 sm:h-9"
           />
-        </div>
+        </div> */}
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3">
