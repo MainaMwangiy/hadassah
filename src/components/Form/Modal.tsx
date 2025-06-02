@@ -25,7 +25,7 @@ const Modal: React.FC<ModalProps & { [key: string]: any }> = ({
   title,
   children,
   config,
-  size = "lg",
+  size = "md",
   ...rest
 }) => {
   useEffect(() => {
@@ -65,11 +65,11 @@ const Modal: React.FC<ModalProps & { [key: string]: any }> = ({
   }
 
   const sizeClasses = {
-    sm: "max-w-md",
-    md: "max-w-lg",
-    lg: "max-w-2xl",
-    xl: "max-w-4xl",
-    "2xl": "max-w-6xl",
+    sm: "max-w-[90vw] sm:max-w-sm",
+    md: "max-w-[90vw] sm:max-w-md",
+    lg: "max-w-[90vw] sm:max-w-lg",
+    xl: "max-w-[90vw] sm:max-w-4xl",
+    "2xl": "max-w-[90vw] sm:max-w-6xl",
   }
 
   const handleBackdropClick = (e: React.MouseEvent) => {
@@ -80,32 +80,32 @@ const Modal: React.FC<ModalProps & { [key: string]: any }> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 flex justify-center items-center p-4"
+      className="fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 flex justify-center items-start p-3 sm:items-center sm:p-4"
       onClick={handleBackdropClick}
     >
       <div
-        className={`bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full ${sizeClasses[size]} border border-gray-200 dark:border-gray-700`}
+        className={`bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full ${sizeClasses[size]} border border-gray-200 dark:border-gray-700 my-3 sm:my-4`}
         onClick={(e) => e.stopPropagation()}
         {...rest}
       >
         {/* Header */}
         {mainTitle && (
-          <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{mainTitle}</h2>
+          <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-3 py-2 sm:px-4 sm:py-3">
+            <h2 className="text-base font-semibold text-gray-900 dark:text-white sm:text-lg">{mainTitle}</h2>
             {onClose && (
               <button
                 onClick={onClose}
-                className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:hover:bg-gray-700 dark:hover:text-gray-300 dark:focus:ring-offset-gray-800"
+                className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:hover:bg-gray-700 dark:hover:text-gray-300 dark:focus:ring-blue-400 dark:focus:ring-offset-gray-800 sm:p-1.5"
                 aria-label="Close modal"
               >
-                <X size={20} />
+                <X size={16} className="sm:h-5 sm:w-5" />
               </button>
             )}
           </div>
         )}
 
         {/* Content */}
-        <div className="p-6">{children}</div>
+        <div className="max-h-[calc(100vh-8rem)] overflow-y-auto p-3 sm:p-4">{children}</div>
       </div>
     </div>
   )

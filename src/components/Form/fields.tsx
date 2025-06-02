@@ -66,12 +66,13 @@ const FormField: React.FC<{ fieldConfig: FieldConfig }> = ({ fieldConfig }) => {
   }
 
   const baseInputClass = `
-    block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 
+    block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 
     placeholder-gray-500 shadow-sm transition-colors duration-200
     focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20
     disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500
     dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400
     dark:focus:border-purple-400 dark:focus:ring-purple-400/20 dark:disabled:bg-gray-700
+    sm:py-2.5
   `
 
   const errorInputClass = hasError
@@ -128,7 +129,7 @@ const FormField: React.FC<{ fieldConfig: FieldConfig }> = ({ fieldConfig }) => {
             />
             <button
               type="button"
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -175,7 +176,7 @@ const FormField: React.FC<{ fieldConfig: FieldConfig }> = ({ fieldConfig }) => {
           <div className="space-y-4">
             <div
               className={`
-                relative rounded-lg border-2 border-dashed p-6 text-center transition-colors
+                relative rounded-lg border-2 border-dashed p-4 text-center transition-colors sm:p-6
                 ${isDragOver
                   ? "border-purple-400 bg-purple-50 dark:bg-purple-900/10"
                   : "border-gray-300 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500"
@@ -192,8 +193,8 @@ const FormField: React.FC<{ fieldConfig: FieldConfig }> = ({ fieldConfig }) => {
                 className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
               />
               <div className="space-y-2">
-                <Upload className="mx-auto h-8 w-8 text-gray-400" />
-                <div className="text-sm text-gray-600 dark:text-gray-400">
+                <Upload className="mx-auto h-6 w-6 text-gray-400 sm:h-8 sm:w-8" />
+                <div className="text-xs text-gray-600 dark:text-gray-400 sm:text-sm">
                   <span className="font-medium text-purple-600 dark:text-purple-400">Click to upload</span> or drag and
                   drop
                 </div>
@@ -203,7 +204,7 @@ const FormField: React.FC<{ fieldConfig: FieldConfig }> = ({ fieldConfig }) => {
 
             {uploadProgress > 0 && (
               <div className="space-y-2">
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between text-xs sm:text-sm">
                   <span className="text-gray-600 dark:text-gray-400">Uploading...</span>
                   <span className="text-gray-600 dark:text-gray-400">{uploadProgress}%</span>
                 </div>

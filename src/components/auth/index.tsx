@@ -1,13 +1,13 @@
 "use client"
 
-import React, { useState } from "react"
+import type React from "react"
+import { useState } from "react"
 import { useFormik } from "formik"
 import * as Yup from "yup"
-import { Eye, EyeOff, Mail, Lock, LogIn, User } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, LogIn, User } from "lucide-react"
 import axios from "axios"
 import { useNavigate } from "react-router-dom"
 import { useSnackbar } from "notistack"
-import { useDispatch } from "react-redux"
 import logo from "../assets/logo.jpg"
 import utils from "../../utils/index";
 
@@ -65,28 +65,28 @@ const Login: React.FC = () => {
 
   return (
     <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-900">
-      <div className="flex flex-1 flex-col items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
-        <div className="w-full max-w-md">
-          <div className="mb-8 flex justify-center">
-            <img src={logo || "/placeholder.svg"} alt="Hadassah Scents Logo" className="h-20 w-auto" />
+      <div className="flex flex-1 flex-col items-center justify-center px-4 py-6 sm:px-6 sm:py-12 lg:px-8">
+        <div className="w-full max-w-sm">
+          <div className="mb-6 flex justify-center sm:mb-8">
+            <img src={logo || "/placeholder.svg"} alt="Hadassah Scents Logo" className="h-16 w-auto sm:h-20" />
           </div>
 
-          <div className="rounded-xl bg-white px-8 py-10 shadow-lg dark:bg-gray-800 sm:px-10">
+          <div className="rounded-xl bg-white px-6 py-8 shadow-lg dark:bg-gray-800 sm:px-8 sm:py-10">
             <div className="mb-6 text-center">
-              <h2 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+              <h2 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-2xl">
                 Welcome to Hadassah Scents
               </h2>
               <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">Sign in to your account</p>
             </div>
 
-            <form className="space-y-6" onSubmit={formik.handleSubmit}>
+            <form className="space-y-5 sm:space-y-6" onSubmit={formik.handleSubmit}>
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Email address
                 </label>
                 <div className="relative mt-1">
                   <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                    <Mail className="h-5 w-5 text-gray-400" />
+                    <Mail className="h-4 w-4 text-gray-400 sm:h-5 sm:w-5" />
                   </div>
                   <input
                     id="email"
@@ -99,13 +99,13 @@ const Login: React.FC = () => {
                     className={`block w-full rounded-lg border ${formik.touched.email && formik.errors.email
                       ? "border-red-300 pr-10 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500"
                       : "border-gray-300 focus:border-purple-500 focus:ring-purple-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
-                      } pl-10 py-2.5 text-sm shadow-sm`}
+                      } pl-9 py-2.5 text-sm shadow-sm sm:pl-10`}
                     placeholder="you@example.com"
                   />
                   {formik.touched.email && formik.errors.email && (
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
                       <svg
-                        className="h-5 w-5 text-red-500"
+                        className="h-4 w-4 text-red-500 sm:h-5 sm:w-5"
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 20 20"
                         fill="currentColor"
@@ -131,7 +131,7 @@ const Login: React.FC = () => {
                 </label>
                 <div className="relative mt-1">
                   <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                    <Lock className="h-5 w-5 text-gray-400" />
+                    <Lock className="h-4 w-4 text-gray-400 sm:h-5 sm:w-5" />
                   </div>
                   <input
                     id="password"
@@ -143,16 +143,20 @@ const Login: React.FC = () => {
                     onBlur={formik.handleBlur}
                     className={`block w-full rounded-lg border ${formik.touched.password && formik.errors.password
                       ? "border-red-300 pr-10 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500"
-                      : "border-gray-300 focus:border-purple-500 focus:ring-purple-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
-                      } pl-10 pr-10 py-2.5 text-sm shadow-sm`}
+                      : "border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+                      } pl-9 pr-10 py-2.5 text-sm shadow-sm sm:pl-10`}
                     placeholder="••••••••"
                   />
                   <button
                     type="button"
-                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:hover:text-gray-300 dark:focus:ring-blue-400 rounded"
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
+                    ) : (
+                      <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
+                    )}
                   </button>
                 </div>
                 {formik.touched.password && formik.errors.password && (
@@ -160,7 +164,7 @@ const Login: React.FC = () => {
                 )}
               </div>
 
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                 <div className="flex items-center">
                   <input
                     id="rememberMe"
@@ -176,7 +180,7 @@ const Login: React.FC = () => {
                 </div>
                 <a
                   href="#"
-                  className="text-sm font-medium text-purple-600 hover:text-purple-500 dark:text-purple-400 dark:hover:text-purple-300"
+                  className="text-sm font-medium text-purple-600 hover:text-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:text-purple-400 dark:hover:text-purple-300 rounded"
                 >
                   Forgot password?
                 </a>
@@ -190,12 +194,19 @@ const Login: React.FC = () => {
                 >
                   {isLoading ? (
                     <svg
-                      className="mr-2 h-4 w-4 animate-spin"
+                      className="mr-2 h-4 w-4 animate-spin sm:h-5 sm:w-5"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
                     >
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
                       <path
                         className="opacity-75"
                         fill="currentColor"
@@ -203,7 +214,7 @@ const Login: React.FC = () => {
                       ></path>
                     </svg>
                   ) : (
-                    <LogIn className="mr-2 h-4 w-4" />
+                    <LogIn className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                   )}
                   {isLoading ? "Signing in..." : "Sign in"}
                 </button>
@@ -225,9 +236,9 @@ const Login: React.FC = () => {
               <div className="mt-6">
                 <a
                   href="#"
-                  className="flex w-full items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+                  className="flex w-full items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 dark:focus:ring-orange-400"
                 >
-                  <User className="mr-2 h-4 w-4" />
+                  <User className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                   Create an account
                 </a>
               </div>

@@ -200,8 +200,8 @@ const Form: React.FC<GenericFormProps & { mode: Mode;[key: string]: any }> = ({
 
   const formContent = (
     <FormikProvider value={formik}>
-      <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+      <form onSubmit={(e) => e.preventDefault()} className="space-y-3 sm:space-y-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
           {fieldsToShow
             .filter((fieldConfig) => fieldConfig?.isSuperAdmin !== false)
             .map((fieldConfig) => (
@@ -214,31 +214,31 @@ const Form: React.FC<GenericFormProps & { mode: Mode;[key: string]: any }> = ({
             ))}
         </div>
 
-        <div className="flex flex-col-reverse gap-3 border-t border-gray-200 pt-6 dark:border-gray-700 sm:flex-row sm:justify-end">
+        <div className="flex flex-col gap-2 border-t border-gray-200 pt-3 dark:border-gray-700 sm:flex-row sm:justify-end sm:gap-3 sm:pt-4">
           <button
             type="button"
             onClick={onCancel}
             disabled={isSubmitting}
-            className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+            className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 sm:px-3 sm:py-2 sm:text-sm"
           >
-            <X size={16} />
-            Cancel
+            <X size={14} className="sm:h-4 sm:w-4" />
+            <span>Cancel</span>
           </button>
           <button
             type="submit"
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-purple-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-purple-700 dark:hover:bg-purple-600"
+            className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-purple-600 px-2 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-purple-700 dark:hover:bg-purple-600 sm:px-3 sm:py-2 sm:text-sm"
           >
             {isSubmitting ? (
               <>
-                <Loader2 size={16} className="animate-spin" />
-                {isUpdate ? "Updating..." : "Submitting..."}
+                <Loader2 size={14} className="animate-spin sm:h-4 sm:w-4" />
+                <span>{isUpdate ? "Updating..." : "Submitting..."}</span>
               </>
             ) : (
               <>
-                <Save size={16} />
-                {isUpdate ? "Update" : "Submit"}
+                <Save size={14} className="sm:h-4 sm:w-4" />
+                <span>{isUpdate ? "Update" : "Submit"}</span>
               </>
             )}
           </button>

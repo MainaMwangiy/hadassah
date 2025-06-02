@@ -312,25 +312,31 @@ const Dashboard: React.FC = () => {
     const isPositive = percentChange >= 0
 
     return (
-      <div className="relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:shadow-md dark:border-gray-800 dark:bg-gray-900">
+      <div className="relative overflow-hidden rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-gray-800 dark:bg-gray-900 sm:p-5">
         <div className="flex justify-between">
-          <div>
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{title}</p>
-            <h3 className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">{value}</h3>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 sm:text-sm">{title}</p>
+            <h3 className="mt-1 text-lg font-bold text-gray-900 dark:text-white sm:mt-2 sm:text-2xl truncate">
+              {value}
+            </h3>
 
             <div className="mt-1 flex items-center">
               <span
-                className={`flex items-center text-sm font-medium ${isPositive ? "text-green-500" : "text-red-500"}`}
+                className={`flex items-center text-xs font-medium sm:text-sm ${isPositive ? "text-green-500" : "text-red-500"}`}
               >
-                {isPositive ? <TrendingUp size={16} className="mr-1" /> : <TrendingDown size={16} className="mr-1" />}
+                {isPositive ? (
+                  <TrendingUp size={14} className="mr-1 sm:h-4 sm:w-4" />
+                ) : (
+                  <TrendingDown size={14} className="mr-1 sm:h-4 sm:w-4" />
+                )}
                 {isPositive ? "+" : ""}
                 {percentChange.toFixed(2)}%
               </span>
-              <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">vs previous {daysNo} days</span>
+              <span className="ml-2 text-xs text-gray-500 dark:text-gray-400 truncate">vs previous {daysNo} days</span>
             </div>
           </div>
 
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400 sm:h-12 sm:w-12">
             {icon}
           </div>
         </div>
@@ -352,42 +358,48 @@ const Dashboard: React.FC = () => {
   }) => {
     return (
       <div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
-        <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+        <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3 dark:border-gray-800 sm:px-6 sm:py-4">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400">
+            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400 sm:h-8 sm:w-8">
               {icon}
             </div>
-            <h3 className="font-semibold text-gray-900 dark:text-white">{title}</h3>
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white sm:text-base">{title}</h3>
           </div>
         </div>
-        <div className="p-6">{children}</div>
+        <div className="p-4 sm:p-6">{children}</div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+        <h1 className="text-xl font-bold text-gray-900 dark:text-white sm:text-2xl">Dashboard</h1>
 
         <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <div className="relative mt-4 sm:mt-0">
+          <div className="relative">
             <button
               onClick={toggleDropdown}
-              className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+              className="flex w-full items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 sm:w-auto sm:px-4"
             >
-              <CalendarIcon size={16} />
-              {dateRange === "Custom"
-                ? `${dayjs(filters.startDate).format("MMM D, YYYY")} - ${dayjs(filters.endDate).format("MMM D, YYYY")}`
-                : dateRange
-                  .replace("last", "Last ")
-                  .replace(/([A-Z])/g, " $1")
-                  .trim()}
-              {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              <CalendarIcon size={14} className="sm:h-4 sm:w-4" />
+              <span className="truncate">
+                {dateRange === "Custom"
+                  ? `${dayjs(filters.startDate).format("MMM D, YYYY")} - ${dayjs(filters.endDate).format("MMM D, YYYY")}`
+                  : dateRange
+                    .replace("last", "Last ")
+                    .replace(/([A-Z])/g, " $1")
+                    .trim()}
+              </span>
+              {isOpen ? (
+                <ChevronUp size={14} className="sm:h-4 sm:w-4" />
+              ) : (
+                <ChevronDown size={14} className="sm:h-4 sm:w-4" />
+              )}
             </button>
 
             {isOpen && (
-              <div className="absolute right-0 z-10 mt-2 w-72 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-gray-800 dark:ring-gray-700">
+              <div className="absolute right-0 z-10 mt-2 w-72 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-gray-800 dark:ring-gray-700 sm:w-80">
                 <div className="py-1">
                   {utils.dateOptions.map((option) => (
                     <React.Fragment key={option.value}>
@@ -403,7 +415,7 @@ const Dashboard: React.FC = () => {
 
                       {option.value === "Custom" && dateRange === "Custom" && (
                         <div className="border-t border-gray-100 px-4 py-3 dark:border-gray-700">
-                          <div className="mb-3 grid grid-cols-2 gap-2">
+                          <div className="mb-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
                             <DatePicker
                               label="Start Date"
                               value={tempStartDate}
@@ -469,13 +481,13 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 sm:gap-6">
         <StatCard
           title="Total Sales Amount"
           value={`KES ${new Intl.NumberFormat("en-KE").format(salesAnalytics.currentPeriod.totalSales)}`}
           percentChange={salesAnalytics.percentageChanges.salesAmount}
           days={dateRange}
-          icon={<DollarSign size={24} />}
+          icon={<DollarSign size={20} className="sm:h-6 sm:w-6" />}
           tempStartDate={tempStartDate}
           tempEndDate={tempEndDate}
         />
@@ -485,7 +497,7 @@ const Dashboard: React.FC = () => {
           value={salesAnalytics.currentPeriod.salesCount}
           percentChange={salesAnalytics.percentageChanges.salesCount}
           days={dateRange}
-          icon={<ShoppingCart size={24} />}
+          icon={<ShoppingCart size={20} className="sm:h-6 sm:w-6" />}
           tempStartDate={tempStartDate}
           tempEndDate={tempEndDate}
         />
@@ -495,7 +507,7 @@ const Dashboard: React.FC = () => {
           value={`KES ${new Intl.NumberFormat("en-KE").format(salesAnalytics.currentPeriod.totalProfits)}`}
           percentChange={salesAnalytics.percentageChanges.profits}
           days={dateRange}
-          icon={<DollarSign size={24} />}
+          icon={<DollarSign size={20} className="sm:h-6 sm:w-6" />}
           tempStartDate={tempStartDate}
           tempEndDate={tempEndDate}
         />
@@ -507,7 +519,7 @@ const Dashboard: React.FC = () => {
           )}`}
           percentChange={calculateAverageSalesPercentage()}
           days={dateRange}
-          icon={<BarChart2 size={24} />}
+          icon={<BarChart2 size={20} className="sm:h-6 sm:w-6" />}
           tempStartDate={tempStartDate}
           tempEndDate={tempEndDate}
         />
@@ -517,15 +529,15 @@ const Dashboard: React.FC = () => {
           value={`${(salesGrowth?.growthPercentage || 0).toFixed(2)}%`}
           percentChange={salesGrowth?.growthPercentage || 0}
           days={dateRange}
-          icon={<TrendingUp size={24} />}
+          icon={<TrendingUp size={20} className="sm:h-6 sm:w-6" />}
           tempStartDate={tempStartDate}
           tempEndDate={tempEndDate}
         />
       </div>
 
       {/* Charts Grid */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <ChartCard title="Top Selling Products" icon={<PieChart size={18} />}>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 sm:gap-6">
+        <ChartCard title="Top Selling Products" icon={<PieChart size={16} className="sm:h-[18px] sm:w-[18px]" />}>
           {pieChartData.length > 0 ? (
             <ChartComponent
               type="pie"
@@ -535,13 +547,13 @@ const Dashboard: React.FC = () => {
               seriesData={pieChartData}
             />
           ) : (
-            <div className="flex h-64 items-center justify-center">
-              <p className="text-gray-500 dark:text-gray-400">No data available for the selected period</p>
+            <div className="flex h-48 items-center justify-center sm:h-64">
+              <p className="text-sm text-gray-500 dark:text-gray-400">No data available for the selected period</p>
             </div>
           )}
         </ChartCard>
 
-        <ChartCard title="Sales Growth Over Time" icon={<LineChart size={18} />}>
+        <ChartCard title="Sales Growth Over Time" icon={<LineChart size={16} className="sm:h-[18px] sm:w-[18px]" />}>
           {lineChartData.length > 0 ? (
             <ChartComponent
               type="line"
@@ -551,13 +563,13 @@ const Dashboard: React.FC = () => {
               seriesData={lineChartData}
             />
           ) : (
-            <div className="flex h-64 items-center justify-center">
-              <p className="text-gray-500 dark:text-gray-400">No data available for the selected period</p>
+            <div className="flex h-48 items-center justify-center sm:h-64">
+              <p className="text-sm text-gray-500 dark:text-gray-400">No data available for the selected period</p>
             </div>
           )}
         </ChartCard>
 
-        <ChartCard title="Top 10 Products Sales" icon={<BarChart2 size={18} />}>
+        <ChartCard title="Top 10 Products Sales" icon={<BarChart2 size={16} className="sm:h-[18px] sm:w-[18px]" />}>
           {barChartDataTop10.length > 0 ? (
             <ChartComponent
               type="bar"
@@ -567,24 +579,24 @@ const Dashboard: React.FC = () => {
               seriesData={barChartDataTop10}
             />
           ) : (
-            <div className="flex h-64 items-center justify-center">
-              <p className="text-gray-500 dark:text-gray-400">No data available for the selected period</p>
+            <div className="flex h-48 items-center justify-center sm:h-64">
+              <p className="text-sm text-gray-500 dark:text-gray-400">No data available for the selected period</p>
             </div>
           )}
         </ChartCard>
 
-        <ChartCard title="Bottom 10 Products Sales" icon={<BarChart2 size={18} />}>
+        <ChartCard title="Bottom 10 Products Sales" icon={<BarChart2 size={16} className="sm:h-[18px] sm:w-[18px]" />}>
           {barChartDataBottom10.length > 0 ? (
             <ChartComponent
               type="bar"
               data={productsData}
-              title="Bottom 10 Products Sales"
+              title="Total Sales (KES)"
               yLabel="Total Sales (KES)"
               seriesData={barChartDataBottom10}
             />
           ) : (
-            <div className="flex h-64 items-center justify-center">
-              <p className="text-gray-500 dark:text-gray-400">No data available for the selected period</p>
+            <div className="flex h-48 items-center justify-center sm:h-64">
+              <p className="text-sm text-gray-500 dark:text-gray-400">No data available for the selected period</p>
             </div>
           )}
         </ChartCard>

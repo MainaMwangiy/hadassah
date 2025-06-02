@@ -56,7 +56,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalItems, itemsP
             onClick={onClick}
             disabled={disabled}
             className={`
-        inline-flex items-center justify-center px-3 py-2 text-sm font-medium transition-colors duration-200
+        inline-flex items-center justify-center px-2 py-1.5 text-sm font-medium transition-colors duration-200 sm:px-3 sm:py-2
         ${isActive
                     ? "bg-purple-600 text-white shadow-sm"
                     : "bg-white text-gray-700 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
@@ -74,47 +74,51 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalItems, itemsP
     }
 
     return (
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="text-sm text-gray-700 dark:text-gray-300">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+            <div className="text-xs text-gray-700 dark:text-gray-300 sm:text-sm">
                 Showing <span className="font-medium">{startItem}</span> to <span className="font-medium">{endItem}</span> of{" "}
                 <span className="font-medium">{totalItems}</span> results
             </div>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 overflow-x-auto">
                 {/* First page */}
                 <PaginationButton onClick={() => onPageChange(1)} disabled={currentPage === 1}>
-                    <ChevronsLeft size={16} />
+                    <ChevronsLeft size={14} className="sm:h-4 sm:w-4" />
                     <span className="sr-only">First page</span>
                 </PaginationButton>
 
                 {/* Previous page */}
                 <PaginationButton onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 1}>
-                    <ChevronLeft size={16} />
+                    <ChevronLeft size={14} className="sm:h-4 sm:w-4" />
                     <span className="sr-only">Previous page</span>
                 </PaginationButton>
 
                 {/* Page numbers */}
-                {getVisiblePages().map((page, index) => (
-                    <React.Fragment key={index}>
-                        {page === "..." ? (
-                            <span className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">...</span>
-                        ) : (
-                            <PaginationButton onClick={() => onPageChange(page as number)} isActive={currentPage === page}>
-                                {page}
-                            </PaginationButton>
-                        )}
-                    </React.Fragment>
-                ))}
+                <div className="flex items-center gap-1">
+                    {getVisiblePages().map((page, index) => (
+                        <React.Fragment key={index}>
+                            {page === "..." ? (
+                                <span className="px-2 py-1.5 text-xs text-gray-500 dark:text-gray-400 sm:px-3 sm:py-2 sm:text-sm">
+                                    ...
+                                </span>
+                            ) : (
+                                <PaginationButton onClick={() => onPageChange(page as number)} isActive={currentPage === page}>
+                                    {page}
+                                </PaginationButton>
+                            )}
+                        </React.Fragment>
+                    ))}
+                </div>
 
                 {/* Next page */}
                 <PaginationButton onClick={() => onPageChange(currentPage + 1)} disabled={currentPage === totalPages}>
-                    <ChevronRight size={16} />
+                    <ChevronRight size={14} className="sm:h-4 sm:w-4" />
                     <span className="sr-only">Next page</span>
                 </PaginationButton>
 
                 {/* Last page */}
                 <PaginationButton onClick={() => onPageChange(totalPages)} disabled={currentPage === totalPages}>
-                    <ChevronsRight size={16} />
+                    <ChevronsRight size={14} className="sm:h-4 sm:w-4" />
                     <span className="sr-only">Last page</span>
                 </PaginationButton>
             </div>
