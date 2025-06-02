@@ -226,7 +226,17 @@ const FormField: React.FC<{ fieldConfig: FieldConfig }> = ({ fieldConfig }) => {
               label={fieldConfig.label}
               value={field.value || ""}
               onChange={handleAutocompleteChange}
-              options={fieldConfig.options || []}
+              options={
+                fieldConfig.options
+                  ? Array.isArray(fieldConfig.options) &&
+                    typeof fieldConfig.options[0] === "string"
+                    ? fieldConfig.options.map((option: string) => ({
+                      value: option,
+                      label: option
+                    }))
+                    : (fieldConfig.options as any[])
+                  : []
+              }
             />
           </div>
         )

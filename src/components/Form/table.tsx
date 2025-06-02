@@ -95,8 +95,18 @@ const Table: React.FC<GenericTableProps> = ({ config, onEdit, params, hideAction
     setCurrentPage(newPage)
   }
 
+  const fetchProductsData = async () => {
+    setLoading(true)
+    const url = `${utils.baseUrl}/api/products/list`
+    const tempPayload = { page: 1, pageSize: 100 }
+    const response = await apiRequest({ method: "POST", url: url, data: tempPayload })
+    localStorage.setItem("products", JSON.stringify(response?.data))
+    setLoading(false)
+  }
+
   useEffect(() => {
     fetchData()
+    fetchProductsData();
   }, [config, currentPage, submissionState, refreshCount, searchTerm])
 
   const renderCellContent = (field: any, item: any) => {

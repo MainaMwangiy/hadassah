@@ -408,8 +408,8 @@ const Dashboard: React.FC = () => {
                       <button
                         onClick={() => handleOptionSelect(option.value)}
                         className={`block w-full px-4 py-2 text-left text-sm ${dateRange === option.value
-                            ? "bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400"
-                            : "text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700"
+                          ? "bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400"
+                          : "text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700"
                           }`}
                       >
                         {option.label}
