@@ -1,64 +1,67 @@
-import React, { useState, useEffect } from "react";
-import { FaBell, FaMoon, FaSun } from "react-icons/fa";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useDarkMode } from "../../hooks/DarkModeContext";
-import ProfileDropdown from "../../hooks/ProfileDropdown";
-import { AiOutlineMenu } from "react-icons/ai";
-import { SidebarProps } from "../../types";
+"use client"
 
-const Header: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { toggleDarkMode, darkMode } = useDarkMode();
+import React from "react"
+import { useNavigate } from "react-router-dom"
+import { Bell, Moon, Sun, Menu } from "lucide-react"
+import { useDarkMode } from "../../hooks/DarkModeContext"
+import ProfileDropdown from "../../hooks/ProfileDropdown"
 
-  const [isDarkMode, setISDarkMode] = useState(darkMode);
+interface HeaderProps {
+  isOpen: boolean
+  toggleSidebar: () => void
+}
 
-  useEffect(() => {
-    setISDarkMode(isDarkMode);
-  }, [isDarkMode]);
-
-  const handleToggleDarkMode = () => {
-    toggleDarkMode();
-    setISDarkMode(!darkMode);
-  };
+const Header: React.FC<HeaderProps> = ({ isOpen, toggleSidebar }) => {
+  const navigate = useNavigate()
+  const { toggleDarkMode, darkMode } = useDarkMode()
 
   return (
-    <header className="w-full h-16 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-md flex justify-between items-center px-4 sm:px-6 lg:px-8 mt-2">
-      <div className="flex items-center">
-        <AiOutlineMenu className="text-3xl cursor-pointer" onClick={toggleSidebar} />
-      </div>
-      {/* <div className="flex-grow mx-4">
-        <input
-          type="text"
-          className="w-full max-w-sm px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-          placeholder="Search"
-        />
-      </div> */}
-      <div className="flex items-center space-x-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-2 border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 sm:h-16">
+      <div className="flex items-center gap-2">
         <button
-          className={`p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${
-            location.pathname === '/notifications' ? 'bg-gray-100 dark:bg-gray-800' : ''
-          }`}
-          onClick={() => navigate("/notifications")}
+          onClick={toggleSidebar}
+          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:h-9 sm:w-9"
         >
-          <FaBell className="text-xl text-gray-600 dark:text-gray-300" />
+          <Menu size={18} className="sm:h-5 sm:w-5" />
+          <span className="sr-only">Toggle sidebar</span>
         </button>
-        
+
+        {/* <div className="relative flex-1 sm:flex sm:max-w-xs md:max-w-sm lg:max-w-md">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400" />
+          <input
+            type="search"
+            placeholder="Search..."
+            className="h-8 w-full rounded-md border border-gray-200 bg-white pl-8 text-sm text-gray-900 placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 dark:border-gray-800 dark:bg-gray-950 dark:text-white dark:placeholder:text-gray-400 dark:focus-visible:ring-purple-400 sm:h-9"
+          />
+        </div> */}
+      </div>
+
+      <div className="flex items-center gap-2 sm:gap-3">
         <button
-          className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-          onClick={handleToggleDarkMode}
+          onClick={() => navigate("/notifications")}
+          className="inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800 relative focus:outline-none focus:ring-2 focus:ring-orange-500 sm:h-9 sm:w-9"
+        >
+          <Bell size={16} className="sm:h-[18px] sm:w-[18px]" />
+          <span className="absolute top-0.5 right-0.5 h-2 w-2 rounded-full bg-red-500 sm:top-1 sm:right-1.5"></span>
+          <span className="sr-only">Notifications</span>
+        </button>
+
+        <button
+          onClick={toggleDarkMode}
+          className="inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:h-9 sm:w-9"
         >
           {darkMode ? (
-            <FaSun className="text-xl text-gray-600 dark:text-gray-300" />
+            <Sun size={16} className="sm:h-[18px] sm:w-[18px]" />
           ) : (
-            <FaMoon className="text-xl text-gray-600 dark:text-gray-300" />
+            <Moon size={16} className="sm:h-[18px] sm:w-[18px]" />
           )}
+          <span className="sr-only">Toggle theme</span>
         </button>
-        
+
         <ProfileDropdown />
       </div>
     </header>
-  );
-};
+  )
+}
 
-export default Header;
+export default Header

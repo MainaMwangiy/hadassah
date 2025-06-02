@@ -1,25 +1,31 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+"use client"
 
-const SubmissionContext = createContext<{ submissionState: boolean; setSubmissionState: (state: boolean) => void } | null>(null);
+import type React from "react"
+import { createContext, useContext, useState, type ReactNode } from "react"
+
+interface SubmissionContextType {
+    submissionState: boolean
+    setSubmissionState: (state: boolean) => void
+}
+
+const SubmissionContext = createContext<SubmissionContextType | null>(null)
 
 export const useSubmissionContext = () => {
-    const context = useContext(SubmissionContext);
+    const context = useContext(SubmissionContext)
     if (context === null) {
-        throw new Error('useSubmissionContext must be used within a SubmissionProvider');
+        throw new Error("useSubmissionContext must be used within a SubmissionProvider")
     }
-    return context;
-};
+    return context
+}
 
 interface SubmissionProviderProps {
-    children: ReactNode;
+    children: ReactNode
 }
 
 export const SubmissionProvider: React.FC<SubmissionProviderProps> = ({ children }) => {
-    const [submissionState, setSubmissionState] = useState(false);
+    const [submissionState, setSubmissionState] = useState(false)
 
     return (
-        <SubmissionContext.Provider value={{ submissionState, setSubmissionState }}>
-            {children}
-        </SubmissionContext.Provider>
-    );
-};
+        <SubmissionContext.Provider value={{ submissionState, setSubmissionState }}>{children}</SubmissionContext.Provider>
+    )
+}
