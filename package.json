@@ -21,6 +21,7 @@
     "formik": "^2.4.6",
     "highcharts": "^12.1.2",
     "highcharts-react-official": "^3.2.1",
+    "lucide-react": "^0.511.0",
     "notistack": "^3.0.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
