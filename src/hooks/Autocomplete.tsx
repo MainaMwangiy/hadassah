@@ -20,23 +20,29 @@ const AutocompleteField: FC<AutocompleteFieldProps> = ({ label, value, onChange,
     const handleInputChange = (event: React.SyntheticEvent, newInputValue: string) => {
         setInputValue(newInputValue);
     };
-    const filteredOptions = options.filter(option => option.label.toLowerCase().includes(inputValue.toLowerCase()));
+
+    const filteredOptions = options.filter((option) =>
+        option && typeof option === 'object' && 'label' in option && typeof option.label === 'string'
+            ? option.label.toLowerCase().includes(inputValue.toLowerCase())
+            : false
+    );
+
     const { darkMode } = useDarkMode();
     const inputStyles = {
         borderColor: darkMode ? '#555' : '#ccc',
         color: darkMode ? 'white' : 'black',
-        caretColor: darkMode ? 'white' : 'black'
+        caretColor: darkMode ? 'white' : 'black',
     };
 
     const labelStyles = {
-        color: darkMode ? 'white' : 'black'
+        color: darkMode ? 'white' : 'black',
     };
 
     return (
         <Autocomplete
             options={filteredOptions}
-            getOptionLabel={(option) => option.label}
-            value={options.find(option => option.value === value) || null}
+            getOptionLabel={(option) => (option && typeof option === 'object' && 'label' in option ? option.label : '')}
+            value={options.find((option) => option && option.value === value) || null}
             onChange={onChange}
             inputValue={inputValue}
             onInputChange={handleInputChange}
