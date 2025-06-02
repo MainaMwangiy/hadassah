@@ -48,9 +48,9 @@ const Table: React.FC<GenericTableProps> = ({ config, onEdit, params, hideAction
   }
 
   const fetchData = async (searchValue?: string) => {
-    setLoading(true)
-    const { url = "", payload = {} } = config.apiEndpoints.list || {}
-    const additionalParams = payload.hideProject ? {} : { projectid: rest?.id }
+    setLoading(true);
+    const { url = '', payload = {} } = config.apiEndpoints.list || {};
+    const additionalParams = payload.hideProject ? {} : { projectid: rest?.id };
     const tempPayload = {
       ...payload,
       ...params,
@@ -58,11 +58,11 @@ const Table: React.FC<GenericTableProps> = ({ config, onEdit, params, hideAction
       pageSize: itemsPerPage,
       searchTerm: searchValue || searchTerm,
       ...additionalParams,
-    }
-    const response = await apiRequest({ method: "POST", url: url, data: tempPayload })
-    setData(response?.data || [])
-    setTotalItems(response?.totalItems || 0)
-    const custom = localKey.toLowerCase() === "products"
+    };
+    const response = await apiRequest({ method: "POST", url: url, data: tempPayload });
+    setData(response?.data || []);
+    setTotalItems(response?.totalItems || 0);
+    const custom = localKey.toLowerCase() === 'products';
     if (updateLocal && !custom) {
       localStorage.setItem(localKey, JSON.stringify(response?.data))
     }
